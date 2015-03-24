@@ -9,12 +9,12 @@ public class ElectricalItem {
     public static char  PROT_RELAYS_COUNT   = 6;
 
     public enum eRelayType{
-        R_COLD      ((char)0),
-        R_WATER     ((char)1),
+        R_WATER     ((char)0),
+        R_COLD      ((char)1),
         R_HEATER    ((char)2),
-        R_LIGHT     ((char)3),
-        R_AUX       ((char)4),
-        R_SPARE     ((char)5);
+        R_AUX       ((char)3),
+        R_SPARE     ((char)4),
+        R_LIGHT     ((char)5);
 
         public char value;
         private eRelayType(char value) {
