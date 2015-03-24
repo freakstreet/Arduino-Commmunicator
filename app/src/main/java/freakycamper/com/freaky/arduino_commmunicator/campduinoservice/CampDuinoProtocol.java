@@ -1,0 +1,164 @@
+package freakycamper.com.freaky.arduino_commmunicator.campduinoservice;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+/**
+ * Created by lsa on 05/12/14.
+ */
+public class CampDuinoProtocol {
+
+    public static char[] FRAME_HEADER = {0xAA, 0xAA, 0xAA, 0xAA};
+    public static char[] FRAME_FOOTER = {0x55, 0x55, 0x55, 0x55};
+    public static int RX_BUFFER_SIZE = 40960;
+
+    public static final int MSG_REGISTER_CLIENT     = 1;
+    public static final int MSG_REGISTERED_CLIENT   = 2;
+    public static final int MSG_UNREGISTER_CLIENT   = 3;
+    public static final int MSG_SEND_TC             = 4;
+    public static final int MSG_GOT_TM              = 5;
+    public static final int MSG_LOST_LINK           = 6;
+    public static final int MSG_GOT_LINK            = 7;
+    public static final int MSG_LOG                 = 8;
+
+    public static final String KEY_DATA_TC = "TelecommandDatas";
+    public static final String KEY_DATA_TM = "TelemetryDatas";
+
+    public enum eProtTcSwitch {
+        PROT_SWITCH_COLD_MODULE     ((char)10),
+        PROT_SWITCH_WATER_MODULE    ((char)11),
+        PROT_SWITCH_HEAT_MODULE     ((char)12),
+        PROT_SWITCH_AUX_MODULE      ((char)14),
+        PROT_SWITCH_SPARE_MODULE    ((char)15);
+
+        public char value;
+
+        private eProtTcSwitch(char value) {
+            this.value = value;
+        }
+    };
+
+    public static char PROT_TC_LIGHT    = 13;
+    public static char PROT_TC_COLD     = 20;
+    public static char PROT_TC_HEATER   = 40;
+
+    // TELEMETRY
+    public static final char	TM_CURRENT		    = 70;
+    public static final char	TM_TENSION		    = 71;
+    public static final char	TM_TEMPERATURE	    = 72;
+    public static final char	TM_WATER		    = 73;
+    public static final char	TM_RELAY		    = 74;
+    public static final char	TM_LIGHT			= 75;
+    public static final char	TM_COLD_HOT		    = 76;
+    public static final char    TM_ELEC_CONF        = 77;
+
+    public static char[] buildSwitchRelayTC(eProtTcSwitch relay, boolean status){
+
+        char[] ret = new char[2];
+        ret[0] = relay.value;
+        ret[1] = (status?(char)1:0);
+        return ret;
+    }
+
+    public static char[] buildSwitchLightTC(int lightId, int dimm, int r, int g,int b){
+        char[] ret = new char[6];
+        ret[0] = PROT_TC_LIGHT;
+        ret[1] = (char)lightId;
+        ret[2] = (char)dimm;
+        ret[3] = (char)r;
+        ret[4] = (char)g;
+        ret[5] = (char)b;
+        return ret;
+    }
+
+    public static char[] buildSetFridgeConsigne(float temp){
+        char[] ret = new char[2];
+        ret[0] = PROT_TC_COLD;
+        ret[1] = encodeTempToChar(temp);
+        return ret;
+    }
+
+    public static char encodeTempToChar(float temp){
+        int t = (Math.round(temp)*2);
+        char ret = (char)t ;
+        return ret;
+    }
+
+    public static byte[] prepareTC(char[] tc) {
+        byte[] ret = new byte[tc.length+CampDuinoProtocol.FRAME_FOOTER.length+CampDuinoProtocol.FRAME_HEADER.length];
+        int pos = 0;
+        // write header
+        for (int i=0; i<CampDuinoProtocol.FRAME_HEADER.length; i++) ret[pos++] = (byte)CampDuinoProtocol.FRAME_HEADER[i];
+        // write TC
+        for (int i=0; i<tc.length; i++) ret[pos++] = (byte)tc[i];
+        // write footer
+        for (int i=0; i<CampDuinoProtocol.FRAME_FOOTER.length; i++) ret[pos++] = (byte)CampDuinoProtocol.FRAME_FOOTER[i];
+        return ret;
+    }
+
+    private static float decodeEncodedFloatFromTm(char msb, char lsb){
+        boolean positive = ((byte)msb & 0x80) == 0;
+        float m=msb, l = lsb;
+        float val = 256*m+l;
+        if (positive)
+            return val/100;
+        else{
+            return (val-0x10000)/100;
+        }
+    }
+
+    public static float[] decodeFloatOnlyTm(char[] tm){
+        float[] ret = new float[(tm.length-1)/2];
+        int i=1;
+        for (float fT:ret){
+            float cVal = decodeEncodedFloatFromTm(tm[2 * i - 1], tm[2 * i]);
+            ret[i-1] = cVal;
+            i++;
+        }
+        return ret;
+    }
+
+    public static float[] decodeTempOnlyTm(char[] tm) {
+        float[] temps = new float[tm.length-1];
+        for (int i = 0; i < temps.length; i++)
+            temps[i] = CampDuinoProtocol.decodeTempFromChar(tm[i + 1]);
+        return temps;
+    }
+
+    public static String charArraytoString(char[] data){
+        char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[data.length * 5];
+        for ( int j = 0; j < data.length; j++ ) {
+            int v = data[j] & 0xFF;
+
+            hexChars[j * 5 + 0] = hexArray[0];
+            hexChars[j * 5 + 1] = 'x';
+            hexChars[j * 5 + 2] = hexArray[v >>> 4];
+            hexChars[j * 5 + 3] = hexArray[v & 0x0F];
+            hexChars[j * 5 + 4] = ' ';
+        }
+        return new String(hexChars);
+    }
+
+    public static float decodeTempFromChar(char value){
+        return (value-128)/2;
+    }
+
+    public static char decodeSignedByte(byte b)
+    {
+        return (char)(b<0?0x80+128+b:b);
+    }
+
+    public static String getCharArrayValsHexString(char[] data){
+        String s = "";
+        int i = 0;
+        for (char c : data){
+            int val = c;
+            if (i>0) s+= " ";
+            s += String.format("%02X", val);
+            i++;
+        }
+        return s;
+    }
+
+}

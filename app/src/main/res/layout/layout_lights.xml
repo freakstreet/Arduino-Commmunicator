@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="Test"
+            android:id="@+id/light_bt1"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:clickable="true" />
+
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="New ToggleButton"
+            android:id="@+id/light_bt2"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:clickable="true" />
+
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="New ToggleButton"
+            android:id="@+id/light_bt3"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:clickable="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:layout_weight="1">
+
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="New ToggleButton"
+            android:id="@+id/light_bt4"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:clickable="true" />
+
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="New ToggleButton"
+            android:id="@+id/light_bt5"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:clickable="true" />
+
+        <ToggleButton
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="New ToggleButton"
+            android:id="@+id/light_bt6"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:clickable="true" />
+
+    </LinearLayout>
+</LinearLayout>

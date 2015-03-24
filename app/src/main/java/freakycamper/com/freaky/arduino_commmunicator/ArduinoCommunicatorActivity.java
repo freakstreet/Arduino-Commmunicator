@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -38,7 +39,26 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class ArduinoCommunicatorActivity extends ListActivity {
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ColdManager;
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ElectricalManager;
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.HeatManager;
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.LightManager;
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.MainManager;
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.TemperatureManager;
+import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.WaterManager;
+import freakycamper.com.freaky.arduino_commmunicator.campdatas.ElectricalItem;
+import freakycamper.com.freaky.arduino_commmunicator.campdatas.LightItem;
+import freakycamper.com.freaky.arduino_commmunicator.campdatas.SQLDatasHelper;
+import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.ArduinoCommunicatorService;
+import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoProtocol;
+import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyButton;
+import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge;
+import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow;
+import freakycamper.com.freaky.arduino_commmunicator.utils.CharCircularFifoBuffer;
+
+public class ArduinoCommunicatorActivity extends Activity implements
+        MainManager.SendTcListener,
+        ElectricalManager.ListenerRelayModuleUpdate {
 
     private static final int ARDUINO_USB_VENDOR_ID = 0x2341;
     private static final int ARDUINO_UNO_USB_PRODUCT_ID = 0x01;
@@ -48,12 +68,17 @@ public class ArduinoCommunicatorActivity extends ListActivity {
     private static final int ARDUINO_MEGA_2560_ADK_R3_USB_PRODUCT_ID = 0x44;
     private static final int ARDUINO_MEGA_2560_ADK_USB_PRODUCT_ID = 0x3F;
 
+    private SQLDatasHelper dbHelper;
+    private ElectricalManager managerElectrical;
+    private LightManager managerLights;
+    private WaterManager managerWater;
+    private ColdManager managerCold;
+    private TemperatureManager managerTemp;
+    private HeatManager managerHeat;
+
+
     private final static String TAG = "ArduinoCommunicatorActivity";
     private final static boolean DEBUG = false;
-    
-    private Boolean mIsReceiving;
-    private ArrayList<ByteArray> mTransferedDataList = new ArrayList<ByteArray>();
-    private ArrayAdapter<ByteArray> mDataAdapter;
 
     private void findDevice() {
         UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -121,28 +146,17 @@ public class ArduinoCommunicatorActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         if (DEBUG) Log.d(TAG, "onCreate()");
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(ArduinoCommunicatorService.DATA_RECEIVED_INTENT);
         filter.addAction(ArduinoCommunicatorService.DATA_SENT_INTERNAL_INTENT);
+        filter.addAction(ArduinoCommunicatorService.SERVICE_CREATED);
         registerReceiver(mReceiver, filter);
 
-        mDataAdapter = new ArrayAdapter<ByteArray>(this, android.R.layout.simple_list_item_1, mTransferedDataList);
-        setListAdapter(mDataAdapter);
-
         findDevice();
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-        if (DEBUG) Log.i(TAG, "onListItemClick() " + position + " " + id);
-        ByteArray transferedData = mTransferedDataList.get(position);
-        transferedData.toggleCoding();
-        mTransferedDataList.set(position, transferedData);
-        mDataAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -164,42 +178,154 @@ public class ArduinoCommunicatorActivity extends ListActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options, menu);
-        return true;
+    public void sendTC(char[] data) {
+        Intent tx = new Intent(ArduinoCommunicatorService.SEND_DATA_INTENT);
+        tx.putExtra(ArduinoCommunicatorService.DATA_EXTRA, data);
+        //Toast.makeText(getBaseContext(), "send tc", Toast.LENGTH_LONG).show();
+        sendBroadcast(tx);
+    }
+
+    private void onServiceConnected(){
+        // **** Initialize functional components ****
+        dbHelper = new SQLDatasHelper(getBaseContext());
+        managerElectrical = ElectricalManager.initialiseElectricalManager(this);
+        managerTemp = TemperatureManager.initialiseTemperatureManager(this, dbHelper);
+        managerLights = LightManager.initialiseLightManager(this);
+        managerWater = WaterManager.initialiseWaterManager(this, managerElectrical, dbHelper);
+        managerCold = ColdManager.initialiseColdManager(this, this, managerElectrical, managerTemp, dbHelper);
+        managerHeat = HeatManager.initialiseHeatManager(this, this, managerTemp);
+        managerElectrical.addRelayModuleListener(this);
+        managerWater.setGauge((FreakyGauge)findViewById(R.id.gaugeWater));
+        managerLights.updateFromTM(new char[]{CampDuinoProtocol.TM_LIGHT, 0, LightItem.eLightTypes.NORMAL_ON_OFF.value, 0, 0, 0, 0});
+        // **** Initialize GUI components ****
+        initGuiComponents();
+    }
+
+    private void initGuiComponents(){
+        // **** Configure main components ****
+        FreakyGauge gaugeBattery, gaugeWater;
+        gaugeBattery = (FreakyGauge)findViewById(R.id.gaugeBatterie);
+        gaugeBattery.addIcon(R.drawable.icon_battery);
+        gaugeBattery.setIconIdx(0);
+        gaugeBattery.set_percentFill(50);
+        gaugeBattery.setLegend(getString(R.string.battery_lb_level) + " " + getString(R.string.battery_auxiliary));
+        gaugeBattery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FreakyGauge g = (FreakyGauge) v;
+                int val = g.getPercentFill();
+                val -= 2;
+                if (val < 0) val = 100;
+                g.set_percentFill(val);
+            }
+        });
+        FreakyButton fb1, fb2;
+        fb1 = (FreakyButton)findViewById(R.id.btPower);
+        fb1.addIcon(R.drawable.icon_water);
+        fb1.setIconIdx(0);
+        fb2 = (FreakyButton)findViewById(R.id.btCold);
+        fb2.addIcon(R.drawable.icon_battery);
+        fb2.setIconIdx(0);
+        fb2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onColdButtonClick();
+            }
+        });
+        FreakyRow fr = (FreakyRow)findViewById(R.id.rawElec);
+        fr.setLabel(getString(R.string.row_electricity));
+        fr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onElecButtonClick();
+            }
+        });
+        fr = (FreakyRow)findViewById(R.id.rawLights);
+        fr.setLabel(getString(R.string.row_lightning));
+        fr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onLightButtonClick();
+            }
+        });
+        fr = (FreakyRow)findViewById(R.id.rawHeater);
+        fr.setLabel(getString(R.string.row_heater));
+        fr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onHeaterButtonClick();;
+            }
+        });
+        fr = (FreakyRow)findViewById(R.id.rawParameters);
+        fr.setMainRow();
+        fr.setLabel(getString(R.string.row_parameters));
+    }
+
+    private void onHeaterButtonClick() {
+        managerHeat.showDialog(this);
+    }
+    private void onLightButtonClick(){
+        managerLights.showDialog(this);
+    }
+    private void onElecButtonClick(){
+        managerElectrical.showDialog(this);
+    }
+    private void onColdButtonClick(){
+        managerCold.showDialog(this);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.help:
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://ron.bems.se/arducom/usage.html")));
-            return true;
-        case R.id.about:
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://ron.bems.se/arducom/primaindex.php")));
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+    public void relayModuleUpdated(boolean[] relayList) {
+        // Etat switch pompe ÃÂ  eau
+        boolean pumpStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER);
+        FreakyGauge g = (FreakyGauge)findViewById(R.id.gaugeWater);
+        g.setIconIdx((pumpStatus?0:1));
+        if(pumpStatus)
+            g.setLegend(getString(R.string.water_lb_relay_on));
+        else
+            g.setLegend(getString(R.string.water_lb_relay_off));
+    }
+
+
+
+
+    public void gotTM(char[] tm){
+        if (tm.length==0) return;
+        switch (tm[0]) {
+            case CampDuinoProtocol.TM_LIGHT :
+                managerLights.updateFromTM(tm);
+                break;
+            case CampDuinoProtocol.TM_WATER:
+                managerWater.updateFromTM(tm);
+                break;
+            case CampDuinoProtocol.TM_CURRENT:
+                managerElectrical.updateCurrents(tm);
+                break;
+            case CampDuinoProtocol.TM_TENSION:
+                managerElectrical.updateTensions(tm);
+                break;
+            case CampDuinoProtocol.TM_RELAY:
+                managerElectrical.updateRelays(tm);
+                break;
+            case CampDuinoProtocol.TM_ELEC_CONF:
+                managerElectrical.updateAlimConfig(tm);
+                break;
+            case CampDuinoProtocol.TM_TEMPERATURE:
+                managerTemp.updateTemperatures(tm);
+                break;
+            case CampDuinoProtocol.TM_COLD_HOT:
+                managerCold.updateColdTm(tm);
+                managerHeat.updateFromTM(tm);
+                break;
+            default :
+                break;
         }
     }
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
         private void handleTransferedData(Intent intent, boolean receiving) {
-            if (mIsReceiving == null || mIsReceiving != receiving) {
-                mIsReceiving = receiving;
-                mTransferedDataList.add(new ByteArray());
-            }
-
-            final byte[] newTransferedData = intent.getByteArrayExtra(ArduinoCommunicatorService.DATA_EXTRA);
-            if (DEBUG) Log.i(TAG, "data: " + newTransferedData.length + " \"" + new String(newTransferedData) + "\"");
-
-            ByteArray transferedData = mTransferedDataList.get(mTransferedDataList.size() - 1);
-            transferedData.add(newTransferedData);
-            mTransferedDataList.set(mTransferedDataList.size() - 1, transferedData);
-            mDataAdapter.notifyDataSetChanged();
+            gotTM(intent.getCharArrayExtra(ArduinoCommunicatorService.DATA_EXTRA));
         }
 
         @Override
@@ -211,6 +337,8 @@ public class ArduinoCommunicatorActivity extends ListActivity {
                 handleTransferedData(intent, true);
             } else if (ArduinoCommunicatorService.DATA_SENT_INTERNAL_INTENT.equals(action)) {
                 handleTransferedData(intent, false);
+            } else if (ArduinoCommunicatorService.SERVICE_CREATED.equals(action)){
+                onServiceConnected();
             }
         }
     };

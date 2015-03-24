@@ -8,8 +8,11 @@
 
         <activity
             android:name=".ArduinoCommunicatorActivity"
-            android:label="@string/app_name"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/activity_name"
+            android:theme="@style/FullscreenTheme"
             android:launchMode="singleTask" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".ArduinoCommunicatorService"
+            android:name=".campduinoservice.ArduinoCommunicatorService"
             android:enabled="true" />
     </application>
 

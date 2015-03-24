@@ -1,8 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Arduino-Commmunicator</string>
-    <string name="default_text_string">No data</string>
-    <string name="help">Help</string>
-    <string name="about">About</string>
+
+    <string name="app_name">FreakyCamper control solution</string>
+    <string name="activity_name">FreakyCamper GUI</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_dialog_water">Gestion de l\'eau</string>
+
+    <string name="row_parameters">Paramètres</string>
+    <string name="row_electricity">Electricité</string>
+    <string name="row_lightning">Eclairage</string>
+    <string name="row_heater">Chauffage</string>
+
+    <string name="usb_error_no_accessory">No USB accessory defined (null)</string>
+
+    <string name="battery_lb_level">Tension de batterie</string>
+    <string name="battery_nominal">PRIM</string>
+    <string name="battery_auxiliary">AUX</string>
+
+    <string name="heater_stop_fan">Arreter ventilateur</string>
+    <string name="heater_zone">zone</string>
+    <string name="heater_target">Température cible à</string>
+
+    <string name="water_lb_relay_on">Module eau actif</string>
+    <string name="water_lb_relay_off">Module eau inactif</string>
+    <string name="water_grey_water_ok">Eaux grises OK</string>
+    <string name="water_grey_water_full">EAUX GRISES PLEIN</string>
+    <string name="water_graph_legend_level">Niveau eau propre</string>
+    <string name="water_graph_legend_flow">Débit conso eau</string>
+
+    <string name="service_started">Lien USB du module FreakyCamper activé</string>
+    <string name="service_label">FreakyCamper USB TM/TC manager</string>
+    <string name="service_usb_alive">USB link alive</string>
+    <string name="service_usb_dead">No USB link</string>
+
+    <string name="dialog_elec">Panneau gestion des modules electriques</string>
+    <string name="dialog_heat">Panneau gestion ventilation et chauffage</string>
+
+
+    <string name="elec_activated_module">activé</string>
+    <string name="elec_desactivated_module">désactivé</string>
+    <string name="elec_water_module">Module eau</string>
+    <string name="elec_light_module">Module lumière</string>
+    <string name="elec_cold_module">Module froid</string>
+    <string name="elec_heat_module">Module chauffage</string>
+    <string name="elec_aux_module">Module auxiliaire</string>
+    <string name="elec_spare_module">Module de remplacement</string>
+
     <string name="permission_denied">Permission denied!</string>
     <string name="receiving">Receiving!</string>
     <string name="opening_device_failed">Opening USB device failed!</string>
@@ -13,4 +58,6 @@
     <string name="device_detaches">Device detached!</string>
     <string name="no_device_found">No device found!</string>
     <string name="found">found!</string>
+
+
 </resources>

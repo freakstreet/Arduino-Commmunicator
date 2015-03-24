@@ -1,0 +1,101 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    tools:context=".ArduinoCommunicatorActivity">
+
+    <LinearLayout
+        android:layout_width="341px"
+        android:layout_height="220px"
+        android:id="@+id/viewMenuCentral"
+
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        tools:ignore="Orientation"
+        android:layout_marginTop="130px">
+
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rawParameters"
+            android:layout_weight="1" />
+
+        <view
+        class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rawElec"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1" />
+
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rawLights"
+            android:layout_gravity="right"
+            android:layout_weight="1" />
+
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rawHeater"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <view
+        class="freakycamper.com.freaky.arduino_commmunicator.gui.clock.FlipClock"
+        android:layout_marginTop="25px"
+        android:layout_centerHorizontal="true"
+        android:layout_height="78px"
+        android:layout_width="200px" />
+
+    <view
+        class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge"
+        android:layout_width="195px"
+        android:layout_height="195px"
+        android:id="@+id/gaugeBatterie"
+        android:layout_alignTop="@+id/viewMenuCentral"
+        android:layout_toLeftOf="@+id/viewMenuCentral"
+        android:layout_marginRight="30dp" />
+
+    <view
+        class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge"
+        android:layout_width="195px"
+        android:layout_height="195px"
+        android:id="@+id/gaugeWater"
+        android:layout_alignTop="@+id/viewMenuCentral"
+        android:layout_toRightOf="@+id/viewMenuCentral"
+        android:layout_marginLeft="30dp"/>
+
+    <view
+        class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyButton"
+        android:layout_width="60px"
+        android:layout_height="60px"
+        android:id="@+id/btPower"
+        android:layout_alignBottom="@+id/viewMenuCentral"
+        android:layout_alignRight="@+id/gaugeBatterie"
+        android:layout_marginBottom="-24px"/>
+
+    <view
+        class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyButton"
+        android:layout_width="60px"
+        android:layout_height="60px"
+        android:id="@+id/btCold"
+        android:layout_alignBottom="@+id/viewMenuCentral"
+        android:layout_alignLeft="@+id/gaugeWater"
+        android:layout_marginBottom="-24px"/>
+
+    <ImageView
+        android:layout_width="60px"
+        android:layout_height="30px"
+        android:id="@+id/img_usb_status"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/usb"/>
+
+</RelativeLayout>
