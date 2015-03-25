@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -63,6 +64,8 @@ public class ArduinoCommunicatorService extends Service {
     private static int TC_SENDER_QUIT = 11;
 
     private final CharCircularFifoBuffer rxBuffer = new CharCircularFifoBuffer(CampDuinoProtocol.RX_BUFFER_SIZE);
+
+    private PowerManager.WakeLock wl;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -111,6 +114,12 @@ public class ArduinoCommunicatorService extends Service {
 
         if (DEBUG) Log.i(TAG, "Receiving!");
         Toast.makeText(getBaseContext(), getString(R.string.receiving), Toast.LENGTH_SHORT).show();
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Tag");
+        wl.acquire();
+
+
         startReceiverThread();
         startSenderThread();
 
@@ -374,6 +383,7 @@ public class ArduinoCommunicatorService extends Service {
                         String s = "TC sent: " + CampDuinoProtocol.getCharArrayValsHexString(dataToSend);
                         Log.d(TAG, s);
                     } else if (msg.what == TC_SENDER_QUIT) {
+                        restoreSleepMode();
                         Looper.myLooper().quit();
                     }
                 }
@@ -382,5 +392,10 @@ public class ArduinoCommunicatorService extends Service {
             Looper.loop();
             if (DEBUG) Log.i(TAG, "sender thread stopped");
         }
+    }
+
+    private void restoreSleepMode(){
+        //do what you need to do
+        wl.release();
     }
 }
