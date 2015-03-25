@@ -101,7 +101,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
             if (DEBUG) Log.d(TAG, "DeviceProtocol: " + tempUsbDevice.getDeviceProtocol());
 
             if (tempUsbDevice.getVendorId() == ARDUINO_USB_VENDOR_ID) {
-                if (DEBUG) Log.i(TAG, "Arduino device found!");
+                if (DEBUG) Log.i(TAG, "FreakyCamper device found!");
 
                 switch (tempUsbDevice.getProductId()) {
                 case ARDUINO_UNO_USB_PRODUCT_ID:
@@ -113,7 +113,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
                     usbDevice = tempUsbDevice;
                     break;
                 case ARDUINO_MEGA_2560_R3_USB_PRODUCT_ID:
-                    Toast.makeText(getBaseContext(), "Arduino Mega 2560 R3 " + getString(R.string.found), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), "Arduino Mega 2560 R3 " + getString(R.string.found), Toast.LENGTH_SHORT).show();
                     usbDevice = tempUsbDevice;
                     break;
                 case ARDUINO_UNO_R3_USB_PRODUCT_ID:
