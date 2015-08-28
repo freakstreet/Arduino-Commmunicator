@@ -21,6 +21,7 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
 
     private ElectricalManager elec = null;
 
+
     public DialogElectrical(Context context, final ElectricalManager manager) {
         super(context, context.getText(R.string.dialog_elec).toString(), R.layout.layout_electrical, android.R.style.Theme_DeviceDefault);
 
@@ -73,9 +74,7 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (elec.getRelayStatus(ElectricalItem.eRelayType.R_COLD)){
-                    // switch off all lights
-                }
+                elec.switchLightningFunction();
             }
         });
 
@@ -145,7 +144,7 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
     }
 
     @Override
-    public void relayModuleUpdated(boolean[] relayList) {
+    public void relayModuleUpdated() {
         updateGui();
     }
 
