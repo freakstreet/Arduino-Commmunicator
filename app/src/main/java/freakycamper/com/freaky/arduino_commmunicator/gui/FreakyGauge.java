@@ -26,6 +26,7 @@ public class FreakyGauge extends ImageView {
 
     private static int NO_ICON = -1;
 
+    boolean active_mode = false;
     Bitmap bBackground = null, bCircleMask= null, bMask1= null, bMask2= null, bIcon = null;
     int _percentFill = 50;
     ArrayList<Integer> lst_icons;
@@ -70,6 +71,10 @@ public class FreakyGauge extends ImageView {
         if (lst_icons.size() > 0)
             preloadIcon();
 
+    }
+
+    public void setActiveMode(boolean active){
+        active_mode = active;
     }
 
     public void preloadMasks(){
@@ -203,6 +208,7 @@ public class FreakyGauge extends ImageView {
         // **** Affichage de la légende ****
         textPaint.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_LIGHT));
         textPaint.setTextSize(11);
+        textPaint.setColor(active_mode?Color.WHITE:Color.DKGRAY);
         canvas.drawText(text, w/2, h/2+25, textPaint);
 
         // **** draw icon ****
