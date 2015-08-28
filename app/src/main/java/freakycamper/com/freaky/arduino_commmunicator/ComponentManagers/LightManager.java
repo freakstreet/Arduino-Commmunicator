@@ -15,6 +15,12 @@ public class LightManager extends MainManager {
     ArrayList<LightItem> _lLights;
     DialogLights _dialog = null;
 
+    public interface switchLightModule {
+        public boolean functionSwitch();
+    }
+
+    boolean moduleActive = false;
+
     static public LightManager initialiseLightManager(SendTcListener listener){
         LightManager ret = new LightManager(listener);
         return ret;
@@ -57,5 +63,21 @@ public class LightManager extends MainManager {
             _dialog.updateGui(this);
         }
     }
+
+    public boolean switchModuleActivation(){
+        if (!moduleActive)
+            moduleActive = true;
+        else {
+            // switch off all lights
+
+            moduleActive = false;
+        }
+        return moduleActive;
+    }
+
+    public boolean getModuleIsAstive(){
+        return moduleActive;
+    }
+
 
 }
