@@ -21,6 +21,8 @@ public class FreakyRow extends ImageView {
     private static int NO_ICON      = -1;
     private static int TEXT_SIZE    = 20;
 
+    private boolean activated = false;
+
     String label = "";
     ArrayList<Integer> lst_icons;
     int icon_idx = NO_ICON, iconSize =24;
@@ -29,16 +31,21 @@ public class FreakyRow extends ImageView {
 
     public FreakyRow(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        lst_icons = new ArrayList<Integer>();
+        init();
     }
 
     public FreakyRow(Context context, AttributeSet attrs) {
         super(context, attrs);
-        lst_icons = new ArrayList<Integer>();
+        init();
     }
     public FreakyRow(Context context) {
         super(context);
+        init();
+    }
+
+    public void init(){
         lst_icons = new ArrayList<Integer>();
+        setClickable(false);
     }
 
     public void setLabel(String newLabel){
@@ -46,7 +53,7 @@ public class FreakyRow extends ImageView {
         invalidate();
     }
 
-    public void setMainRow(){isMainRow = true;}
+   public void setMainRow(){isMainRow = true;}
 
     public int getIconIdx(){
         return icon_idx;
@@ -104,9 +111,37 @@ public class FreakyRow extends ImageView {
                 p.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_MEDIUM));
             else
                 p.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_LIGHT));
+
+            if (activated)
+                p.setColor(Color.WHITE);
+            else
+                p.setColor(Color.DKGRAY);
             canvas.drawText(label, w/8, (h+TEXT_SIZE)/2, p);
         }
 
+    }
+
+    public void setActivationMode(boolean activated){
+        if (activated)
+            activate();
+        else
+            desactivate();
+    }
+
+    private void activate(){
+        activated = true;
+        this.setClickable(true);
+        this.invalidate();
+    }
+
+    private void desactivate(){
+        activated = false;
+        this.setClickable(false);
+        this.invalidate();
+    }
+
+    public boolean getActivatedStatus(){
+        return activated;
     }
 
 }
