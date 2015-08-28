@@ -16,12 +16,10 @@
 
 package freakycamper.com.freaky.arduino_commmunicator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,14 +27,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ColdManager;
@@ -54,11 +47,11 @@ import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoP
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyButton;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow;
-import freakycamper.com.freaky.arduino_commmunicator.utils.CharCircularFifoBuffer;
 
 public class ArduinoCommunicatorActivity extends Activity implements
         MainManager.SendTcListener,
-        ElectricalManager.ListenerRelayModuleUpdate {
+        ElectricalManager.ListenerRelayModuleUpdate,
+        LightManager.switchLightModule {
 
     private final static boolean SIMULATE_BOARD = true;
 
@@ -211,6 +204,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
         managerElectrical.addRelayModuleListener(this);
         managerWater.setGauge((FreakyGauge)findViewById(R.id.gaugeWater));
         managerLights.updateFromTM(new char[]{CampDuinoProtocol.TM_LIGHT, 0, LightItem.eLightTypes.NORMAL_ON_OFF.value, 0, 0, 0, 0});
+
+        managerElectrical.setListenerSwitchLightModule(this);
         // **** Initialize GUI components ****
         initGuiComponents();
     }
@@ -296,7 +291,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
         managerLights.showDialog(this);
     }
     private void onElecButtonClick(){
-        managerElectrical.showDialog(this);
+        managerElectrical.showDialog(this, managerLights.getModuleIsAstive());
     }
     private void onColdButtonClick(){
         managerCold.showDialog(this);
@@ -304,7 +299,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
 
     @Override
-    public void relayModuleUpdated(boolean[] relayList) {
+    public void relayModuleUpdated() {
         // Etat switch pompe a eau
         boolean pumpStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER);
         FreakyGauge g = (FreakyGauge)findViewById(R.id.gaugeWater);
@@ -319,6 +314,11 @@ public class ArduinoCommunicatorActivity extends Activity implements
         boolean heatStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER);
         FreakyRow fr = (FreakyRow)findViewById(R.id.rawHeater);
         fr.setActivationMode(heatStatus);
+
+        // Etat module lumière
+        boolean lightStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT);
+        fr = (FreakyRow)findViewById(R.id.rawLights);
+        fr.setActivationMode(lightStatus);
     }
 
     public void gotTM(char[] tm){
@@ -410,6 +410,17 @@ public class ArduinoCommunicatorActivity extends Activity implements
             tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
             gotTM(tm);
         }
+        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE.value){
+            char[] tm = new char[7];
+            tm[0] = CampDuinoProtocol.TM_RELAY;
+            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
+            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
+            tm[3] = (tc[1]==1? (char)1:0);
+            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
+            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
+            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            gotTM(tm);
+        }
         else if (tc[0] == CampDuinoProtocol.PROT_TC_COLD){
             char[]tm = new char[6];
             tm[0] = CampDuinoProtocol.TM_COLD_HOT;
@@ -475,4 +486,14 @@ public class ArduinoCommunicatorActivity extends Activity implements
             }
         }
     };
+
+
+    @Override
+    public boolean functionSwitch() {
+        boolean ret = managerLights.switchModuleActivation();
+        FreakyRow fr = (FreakyRow)findViewById(R.id.rawLights);
+        fr.setLabel(getString(R.string.row_lightning));
+        fr.setActivationMode(ret);
+        return ret;
+    }
 }
