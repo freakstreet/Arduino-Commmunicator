@@ -20,6 +20,7 @@ import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogElectrical;
 public class ElectricalManager extends MainManager implements WaterItem.ToggleSwitchWaterPumpRelay {
 
     DialogElectrical _dialog = null;
+    LightManager.switchLightModule listenerSwitchLightModule;
 
     static public ElectricalManager initialiseElectricalManager(ArduinoCommunicatorActivity mainActivity) {
         return new ElectricalManager(mainActivity);
@@ -40,6 +41,10 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
         _sendTcListener.sendTC(tc);
     }
 
+    public void setListenerSwitchLightModule(LightManager.switchLightModule listener){
+        listenerSwitchLightModule = listener;
+    }
+
     public interface ListenerCurrentUpdate {
         public void currentUpdated(float[] currentList);
     }
@@ -49,7 +54,7 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
     }
 
     public interface ListenerRelayModuleUpdate {
-        public void relayModuleUpdated(boolean[] relayList);
+        public void relayModuleUpdated();
     }
 
     public interface ListenerManagerPowerSourceChange {
@@ -105,7 +110,7 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
             _relays[i-1] = tm[i] == 1;
             i++;
         }
-        for (ListenerRelayModuleUpdate listener : _lRelayModuleListener) listener.relayModuleUpdated(_relays);
+        for (ListenerRelayModuleUpdate listener : _lRelayModuleListener) listener.relayModuleUpdated();
     }
 
     public void updateAlimConfig(char[] tm){
@@ -157,9 +162,13 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
         _lRelayModuleListener.remove(listener);
     }
 
-    public void showDialog(Context context){
+    public void showDialog(Context context, boolean lightModuleActivated){
         _dialog = new DialogElectrical(context, this);
         addRelayModuleListener(_dialog);
         _dialog.show();
+    }
+
+    public void switchLightningFunction(){
+        _relays[ElectricalItem.eRelayType.R_LIGHT.value] = listenerSwitchLightModule.functionSwitch();
     }
 }
