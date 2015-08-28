@@ -8,7 +8,7 @@
 
     <string name="title_dialog_water">Gestion de l\'eau</string>
 
-    <string name="row_parameters">Paramètres</string>
+    <string name="row_electricity_dispatch">Panneau electrique</string>
     <string name="row_electricity">Electricité</string>
     <string name="row_lightning">Eclairage</string>
     <string name="row_heater">Chauffage</string>
@@ -57,6 +57,7 @@
     <string name="no_extra_in_intent">No %1$s extra in intent!</string>
     <string name="device_detaches">Device detached!</string>
     <string name="no_device_found">No device found!</string>
+    <string name="simulation_mode">Simulation mode activated</string>
     <string name="found">found!</string>
 
 
