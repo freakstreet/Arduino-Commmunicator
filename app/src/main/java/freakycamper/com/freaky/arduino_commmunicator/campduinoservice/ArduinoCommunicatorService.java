@@ -115,6 +115,8 @@ public class ArduinoCommunicatorService extends Service {
         if (DEBUG) Log.i(TAG, "Receiving!");
         Toast.makeText(getBaseContext(), getString(R.string.receiving), Toast.LENGTH_SHORT).show();
 
+
+
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Tag");
         wl.acquire();
@@ -123,7 +125,27 @@ public class ArduinoCommunicatorService extends Service {
         startReceiverThread();
         startSenderThread();
 
+        activateBoard();
+
         return Service.START_REDELIVER_INTENT;
+    }
+
+    private void activateBoard(){
+    //public static void activateBoard(){
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                byte[] activate = CampDuinoProtocol.prepareTC(CampDuinoProtocol.PROT_TC_ACTIVATE_BOARD);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                mUsbConnection.bulkTransfer(mOutUsbEndpoint, activate, activate.length, 0);
+            }
+        };
+        thread.run();
     }
 
     @Override
@@ -213,16 +235,10 @@ public class ArduinoCommunicatorService extends Service {
                 }
                 Toast.makeText(context, "SEND_TC: " + CampDuinoProtocol.getCharArrayValsHexString(dataToSend), Toast.LENGTH_LONG).show();
 
-                //Message msg = new Message();
-                //msg.what = TC_SEND_ACTION;
-                //msg.obj = dataToSend;
-                //mSenderThread.mHandler.sendMessage(msg);
                 if (mSenderThread == null)
                     Toast.makeText(context, "mSenderThread is null", Toast.LENGTH_LONG).show();
                 else{
-
                     mSenderThread.mHandler.obtainMessage(TC_SEND_ACTION, dataToSend).sendToTarget();
-
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 Toast.makeText(context, getString(R.string.device_detaches), Toast.LENGTH_LONG).show();
@@ -233,12 +249,17 @@ public class ArduinoCommunicatorService extends Service {
     };
 
     private void startReceiverThread() {
-        new Thread("arduino_receiver") {
+        new Thread("USB_receiver") {
             public void run() {
                 byte[] inBuffer = new byte[CampDuinoProtocol.RX_BUFFER_SIZE/2];
                 while(mUsbDevice != null ) {
                     if (DEBUG) Log.d(TAG, "calling bulkTransfer() in");
                     final int len = mUsbConnection.bulkTransfer(mInUsbEndpoint, inBuffer, inBuffer.length, 0);
+
+                    char[] dbg = new char[len];
+                    for (int i=0; i<len; i++) dbg[i] = (char)inBuffer[i];
+                       Log.d(TAG, "TM: " + CampDuinoProtocol.charArraytoString(dbg));
+
                     if (len > 0) {
                         char[] cBuffer = new char[len];
                         for (int i=0; i<len; i++)
@@ -263,8 +284,6 @@ public class ArduinoCommunicatorService extends Service {
         String s;
 
         if (len == 0) return;
-        // s = "rxBuff len: " + rxBuffer.getDataCount();
-        //Log.d(TAG, s);
 
         // removes all the datas before meeting the first header char
         while(len > 0 && headerCount == 0){
@@ -325,7 +344,7 @@ public class ArduinoCommunicatorService extends Service {
     }
 
     private void manageTm(char[] tm){
- /*       if (tm.length==0) return;
+        if (tm.length==0) return;
         switch (tm[0]) {
             case CampDuinoProtocol.TM_LIGHT :
                 break;
@@ -349,7 +368,7 @@ public class ArduinoCommunicatorService extends Service {
                 break;
             default :
                 break;
-        }*/
+        }
     }
 
 
@@ -380,7 +399,7 @@ public class ArduinoCommunicatorService extends Service {
                         byte[] data = CampDuinoProtocol.prepareTC(dataToSend);
                         if (DEBUG) Log.d(TAG, "calling bulkTransfer() out");
                         mUsbConnection.bulkTransfer(mOutUsbEndpoint, data, data.length, 0);
-                        String s = "TC sent: " + CampDuinoProtocol.getCharArrayValsHexString(dataToSend);
+                        String s = "SenderThread TC sent: " + CampDuinoProtocol.getCharArrayValsHexString(dataToSend) + ", encoded :" + CampDuinoProtocol.getByteArrayValsHexString(data);
                         Log.d(TAG, s);
                     } else if (msg.what == TC_SENDER_QUIT) {
                         restoreSleepMode();
