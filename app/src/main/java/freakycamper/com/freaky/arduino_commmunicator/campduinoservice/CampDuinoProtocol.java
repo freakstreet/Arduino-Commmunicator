@@ -38,9 +38,10 @@ public class CampDuinoProtocol {
         }
     };
 
-    public static char PROT_TC_LIGHT    = 13;
-    public static char PROT_TC_COLD     = 20;
-    public static char PROT_TC_HEATER   = 40;
+    public static char PROT_TC_ACTIVATE_BOARD   = 8;
+    public static char PROT_TC_LIGHT            = 13;
+    public static char PROT_TC_COLD             = 20;
+    public static char PROT_TC_HEATER           = 40;
 
     // TELEMETRY
     public static final char	TM_CURRENT		    = 70;
@@ -82,6 +83,12 @@ public class CampDuinoProtocol {
         int t = (Math.round(temp)*2);
         char ret = (char)t ;
         return ret;
+    }
+
+    public static byte[] prepareTC(char tc){
+        char[] ctc = new char[1];
+        ctc[0] = tc;
+        return prepareTC(ctc);
     }
 
     public static byte[] prepareTC(char[] tc) {
@@ -149,6 +156,10 @@ public class CampDuinoProtocol {
         return (char)(b<0?0x80+128+b:b);
     }
 
+    public static String getCharArrayValsHexString(char tcCode){
+        return getCharArrayValsHexString(new char[tcCode]);
+    }
+
     public static String getCharArrayValsHexString(char[] data){
         String s = "";
         int i = 0;
@@ -159,6 +170,13 @@ public class CampDuinoProtocol {
             i++;
         }
         return s;
+    }
+
+    public static String getByteArrayValsHexString(byte[] data){
+        char[] chs = new char[data.length];
+        for (int i=0;i<data.length; i++)
+            chs[i] = (char)data[i];
+            return getCharArrayValsHexString(chs);
     }
 
 }
