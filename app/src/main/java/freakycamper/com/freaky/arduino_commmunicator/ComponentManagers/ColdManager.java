@@ -20,6 +20,7 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
     private float                           _tempConsigne = -99;
     private EvictingQueue<TemperatureItem> _tempArray;
     private boolean                         _relayColdStatus = false;
+    private ElectricalManager               _elecManager;
 
     static public ColdManager initialiseColdManager(Context context, SendTcListener listener, final ElectricalManager elecTm, final TemperatureManager tempTm, SQLDatasHelper database) {
         ColdManager ret = new ColdManager(context, listener, elecTm, tempTm, database);
@@ -32,7 +33,7 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
         super(listener);
 
         _tempArray = database.retrieveLastLoggedFridgeTemps();
-
+        _elecManager = elecTm;
         elecTm.addRelayModuleListener(this);
         tempTm.addTempTmUpdateListener(this);
     }
@@ -74,8 +75,8 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
 
 
     @Override
-    public void relayModuleUpdated(boolean[] relayList) {
-        _relayColdStatus = relayList[ElectricalItem.eRelayType.R_COLD.value];
+    public void relayModuleUpdated() {
+        _relayColdStatus = _elecManager.getRelayStatus(ElectricalItem.eRelayType.R_COLD);
         if (_dialog != null) {
             _dialog.updateSwitchColdStatus(_relayColdStatus);
         }
