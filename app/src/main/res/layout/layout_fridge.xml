@@ -15,11 +15,12 @@
         <Switch
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Activer module de froid"
+            android:text="@string/dlg_cold_status"
             android:id="@+id/switch_activate_cold"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:textSize="24dp" />
+            android:textSize="24dp"
+            android:clickable="false" />
     </LinearLayout>
 
     <LinearLayout
@@ -33,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Température frigo"
+            android:text="@string/dlg_cold_temp_lb"
             android:id="@+id/textView"
             android:layout_weight="1"
             android:textSize="24dp"
