@@ -18,7 +18,7 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
 
     public static final int DEFAULT_TEMP_FRIDGE = 6;
     private float                           _tempConsigne = -99;
-    private EvictingQueue<TemperatureItem> _tempArray;
+    private EvictingQueue<TemperatureItem>  _tempArray;
     private boolean                         _relayColdStatus = false;
     private ElectricalManager               _elecManager;
 
