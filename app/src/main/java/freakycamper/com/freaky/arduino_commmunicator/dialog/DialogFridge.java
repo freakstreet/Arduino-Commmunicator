@@ -1,6 +1,7 @@
 package freakycamper.com.freaky.arduino_commmunicator.dialog;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.telerik.widget.chart.engine.axes.common.DateTimeComponent;
 import com.telerik.widget.chart.engine.databinding.DataPointBinding;
+import com.telerik.widget.chart.visualization.annotations.cartesian.CartesianGridLineAnnotation;
 import com.telerik.widget.chart.visualization.behaviors.ChartPanAndZoomBehavior;
 import com.telerik.widget.chart.visualization.behaviors.ChartPanZoomMode;
 import com.telerik.widget.chart.visualization.cartesianChart.RadCartesianChartView;
@@ -43,7 +45,9 @@ public class DialogFridge extends DialogPopUpDelayed  {
 
         _switchColdModule = (Switch)findViewById(R.id.switch_activate_cold);
         _switchColdModule.setChecked(manager.getColdModuleStatus());
-        _switchColdModule.setOnClickListener(new View.OnClickListener() {
+
+        // Module activation put at the electrical main panel
+  /*      _switchColdModule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Switch s = (Switch) v;
@@ -53,7 +57,7 @@ public class DialogFridge extends DialogPopUpDelayed  {
             }
         });
         setMonitoredComponent(_switchColdModule);
-
+*/
         TextView txt = (TextView)findViewById(R.id.text_fridge_temp);
         txt.setText(String.valueOf(manager.getTempFridge()) + "°C");
 
@@ -135,7 +139,15 @@ public class DialogFridge extends DialogPopUpDelayed  {
 
         LinearAxis vAxis = new LinearAxis(context);
         vAxis.setMaximum(25);
+        vAxis.setMinimum(0);
         chartView.setVerticalAxis(vAxis);
+
+        if (manager.getTempConsigne() > 0) {
+            CartesianGridLineAnnotation annotation = new CartesianGridLineAnnotation(context, vAxis, manager.getTempConsigne());
+            chartView.getAnnotations().add(annotation);
+            annotation.setStrokeColor(Color.RED);
+            annotation.setStrokeWidth(1);
+        }
 
         ChartPanAndZoomBehavior panZoom = new ChartPanAndZoomBehavior();
         panZoom.setPanMode(ChartPanZoomMode.BOTH);
