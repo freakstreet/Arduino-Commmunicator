@@ -424,9 +424,15 @@ public class ArduinoCommunicatorActivity extends Activity implements
         else if (tc[0] == CampDuinoProtocol.PROT_TC_COLD){
             char[]tm = new char[6];
             tm[0] = CampDuinoProtocol.TM_COLD_HOT;
-            tm[1] = tc[1];
+            // cold temp consigne value, from java to java there is no issue with signed/unsigned as seen with arduino so compensating TM with +128 when simulating
+            char tempCorrected = tc[1];
+            tempCorrected = (char) (tempCorrected + (char)128);
+            tm[1] = tempCorrected;
             // TODO : retrieve HOT parameters from heat manager
-
+            tm[2] = (char)(managerHeat.getHeatParams().getStatus().value);
+            tm[3] = CampDuinoProtocol.encodeTempToChar(managerHeat.getHeatParams().getTempConsigne());
+            tm[4] = (char)(managerHeat.getHeatParams().getFanSpeed(0));
+            tm[5] = (char)(managerHeat.getHeatParams().getFanSpeed(1));
             gotTM(tm);
 
             tm = new char[managerTemp.getTempsCount()+1];
