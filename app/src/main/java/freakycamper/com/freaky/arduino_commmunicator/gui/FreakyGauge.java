@@ -75,6 +75,7 @@ public class FreakyGauge extends ImageView {
 
     public void setActiveMode(boolean active){
         active_mode = active;
+        this.setEnabled(active);
     }
 
     public void preloadMasks(){
