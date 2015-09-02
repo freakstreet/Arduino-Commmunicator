@@ -38,6 +38,8 @@
     <string name="dialog_elec">Panneau gestion des modules electriques</string>
     <string name="dialog_heat">Panneau gestion ventilation et chauffage</string>
 
+    <string name="dlg_cold_status">Etat du module de froid</string>
+    <string name="dlg_cold_temp_lb">Température interne</string>
 
     <string name="elec_activated_module">activé</string>
     <string name="elec_desactivated_module">désactivé</string>
