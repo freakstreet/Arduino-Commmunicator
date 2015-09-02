@@ -79,12 +79,6 @@ public class CampDuinoProtocol {
         return ret;
     }
 
-    public static char encodeTempToChar(float temp){
-        int t = (Math.round(temp)*2);
-        char ret = (char)t ;
-        return ret;
-    }
-
     public static byte[] prepareTC(char tc){
         char[] ctc = new char[1];
         ctc[0] = tc;
@@ -145,6 +139,12 @@ public class CampDuinoProtocol {
             hexChars[j * 5 + 4] = ' ';
         }
         return new String(hexChars);
+    }
+
+    public static char encodeTempToChar(float temp){
+        int t = (Math.round(temp)*2);
+        char ret = (char)t ;
+        return ret;
     }
 
     public static float decodeTempFromChar(char value){
