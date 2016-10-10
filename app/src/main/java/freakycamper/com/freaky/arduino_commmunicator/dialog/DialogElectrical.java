@@ -3,8 +3,6 @@ package freakycamper.com.freaky.arduino_commmunicator.dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ColdManager;

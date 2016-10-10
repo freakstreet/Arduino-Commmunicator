@@ -16,6 +16,8 @@
 
 package freakycamper.com.freaky.arduino_commmunicator;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -23,6 +25,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
@@ -30,6 +33,8 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ColdManager;
@@ -39,21 +44,30 @@ import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.LightMana
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.MainManager;
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.TemperatureManager;
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.WaterManager;
+import freakycamper.com.freaky.arduino_commmunicator.campdatas.DeviceSimulator;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.ElectricalItem;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.LightItem;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.SQLDatasHelper;
+import freakycamper.com.freaky.arduino_commmunicator.campdatas.TensionItem;
 import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.ArduinoCommunicatorService;
 import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoProtocol;
+import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.GotTmListener;
+import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogTelemetryView;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyButton;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow;
+import freakycamper.com.freaky.arduino_commmunicator.gui.UIUpdater;
+import freakycamper.com.freaky.arduino_commmunicator.utils.FontUtils;
 
 public class ArduinoCommunicatorActivity extends Activity implements
         MainManager.SendTcListener,
         ElectricalManager.ListenerRelayModuleUpdate,
-        LightManager.switchLightModule {
+        ElectricalManager.ListenerTensionUpdate,
+        LightManager.switchLightModule,
+        GotTmListener
+{
 
-    private final static boolean SIMULATE_BOARD = true;
+    private final static boolean SIMULATE_BOARD = false;
 
     private static final int ARDUINO_USB_VENDOR_ID = 0x2341;
     private static final int ARDUINO_UNO_USB_PRODUCT_ID = 0x01;
@@ -63,6 +77,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
     private static final int ARDUINO_MEGA_2560_ADK_R3_USB_PRODUCT_ID = 0x44;
     private static final int ARDUINO_MEGA_2560_ADK_USB_PRODUCT_ID = 0x3F;
 
+    GotTmListener tmListener = null;
+
     private SQLDatasHelper dbHelper;
     private ElectricalManager managerElectrical;
     private LightManager managerLights;
@@ -71,6 +87,11 @@ public class ArduinoCommunicatorActivity extends Activity implements
     private TemperatureManager managerTemp;
     private HeatManager managerHeat;
 
+    private DeviceSimulator simulator = null;
+
+    private UIUpdater mUIUpdater;
+    private FreakyGauge gaugeBattery, gaugeWater;
+    private DialogTelemetryView dlgConsoleTM;
 
     private final static String TAG = "ArduinoCommunicatorActivity";
     private final static boolean DEBUG = false;
@@ -127,20 +148,14 @@ public class ArduinoCommunicatorActivity extends Activity implements
             }
         }
 
-        if (SIMULATE_BOARD){
-            Toast.makeText(getBaseContext(), getString(R.string.simulation_mode), Toast.LENGTH_LONG).show();
-            onServiceConnected();
-        }
-        else{
-            if (usbDevice == null) {
-                if (DEBUG) Log.i(TAG, "No device found!");
-                Toast.makeText(getBaseContext(), getString(R.string.no_device_found), Toast.LENGTH_LONG).show();
-            } else {
-                if (DEBUG) Log.i(TAG, "Device found!");
-                Intent startIntent = new Intent(getApplicationContext(), ArduinoCommunicatorService.class);
-                PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, startIntent, 0);
-                usbManager.requestPermission(usbDevice, pendingIntent);
-            }
+        if (usbDevice == null) {
+            if (DEBUG) Log.i(TAG, "No device found!");
+            Toast.makeText(getBaseContext(), getString(R.string.no_device_found), Toast.LENGTH_LONG).show();
+        } else {
+            if (DEBUG) Log.i(TAG, "Device found!");
+            Intent startIntent = new Intent(getApplicationContext(), ArduinoCommunicatorService.class);
+            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, startIntent, 0);
+            usbManager.requestPermission(usbDevice, pendingIntent);
         }
     }
 
@@ -149,6 +164,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dlgConsoleTM = null;
+
         if (DEBUG) Log.d(TAG, "onCreate()");
 
         IntentFilter filter = new IntentFilter();
@@ -156,8 +173,22 @@ public class ArduinoCommunicatorActivity extends Activity implements
         filter.addAction(ArduinoCommunicatorService.DATA_SENT_INTERNAL_INTENT);
         filter.addAction(ArduinoCommunicatorService.SERVICE_CREATED);
         registerReceiver(mReceiver, filter);
-
         findDevice();
+        ImageView imgBtUSB = (ImageView)findViewById(R.id.img_usb_status);
+        final Context ctx = this;
+        imgBtUSB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                swowTmConsoleDialog();
+            }
+        });
+
+        if (SIMULATE_BOARD){
+            Toast.makeText(getBaseContext(), getString(R.string.simulation_mode), Toast.LENGTH_LONG).show();
+            simulator = new DeviceSimulator(this);
+            onServiceConnected();
+        }
+        else findDevice();
 
     }
 
@@ -188,14 +219,22 @@ public class ArduinoCommunicatorActivity extends Activity implements
             sendBroadcast(tx);
         }
         else{
-            simulateFromTC(data);
+            simulator.simulateFromTC(data);
         }
+    }
+
+    private void swowTmConsoleDialog()
+    {
+
+
+        dlgConsoleTM.showDialog();
     }
 
     private void onServiceConnected(){
         // **** Initialize functional components ****
         dbHelper = new SQLDatasHelper(getBaseContext());
         managerElectrical = ElectricalManager.initialiseElectricalManager(this);
+        managerElectrical.addTensionListener(this);
         managerTemp = TemperatureManager.initialiseTemperatureManager(this, dbHelper);
         managerLights = LightManager.initialiseLightManager(this);
         managerWater = WaterManager.initialiseWaterManager(this, managerElectrical, dbHelper);
@@ -206,43 +245,90 @@ public class ArduinoCommunicatorActivity extends Activity implements
         managerLights.updateFromTM(new char[]{CampDuinoProtocol.TM_LIGHT, 0, LightItem.eLightTypes.NORMAL_ON_OFF.value, 0, 0, 0, 0});
 
         managerElectrical.setListenerSwitchLightModule(this);
+
+        dlgConsoleTM = new DialogTelemetryView(this);
+        tmListener = dlgConsoleTM;
+        dlgConsoleTM.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                tmListener = null;
+                dlgConsoleTM = null;
+            }
+        });
+
+        dlgConsoleTM.setColdManager(managerCold);
+        dlgConsoleTM.setElectricalManager(managerElectrical);
+        dlgConsoleTM.setHeatManager(managerHeat);
+        dlgConsoleTM.setLightManager(managerLights);
+        dlgConsoleTM.setTemperatureManager(managerTemp);
+        dlgConsoleTM.setWaterManager(managerWater);
+
+        if (simulator != null)
+        {
+            simulator.setColdManager(managerCold);
+            simulator.setElectricalManager(managerElectrical);
+            simulator.setHeatManager(managerHeat);
+            simulator.setLightManager(managerLights);
+            simulator.setTemperatureManager(managerTemp);
+            simulator.setWaterManager(managerWater);
+            simulator.startSimulator();
+        }
+
         // **** Initialize GUI components ****
         initGuiComponents();
     }
 
     private void initGuiComponents(){
         // **** Configure main components ****
-        FreakyGauge gaugeBattery, gaugeWater;
         gaugeBattery = (FreakyGauge)findViewById(R.id.gaugeBatterie);
         gaugeBattery.addIcon(R.drawable.icon_battery);
         gaugeBattery.setIconIdx(0);
         gaugeBattery.setActiveMode(true);
+        gaugeBattery.setNumericalMode(11.5f, 12.7f);
         gaugeBattery.set_percentFill(50);
         gaugeBattery.setLegend(getString(R.string.battery_lb_level) + " " + getString(R.string.battery_auxiliary));
-        gaugeBattery.setOnClickListener(new View.OnClickListener() {
+/*        gaugeBattery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FreakyGauge g = (FreakyGauge) v;
-                int val = g.getPercentFill();
-                val -= 2;
-                if (val < 0) val = 100;
-                g.set_percentFill(val);
+                g.set_ValueText("12.0V");
+                g.set_Value(12.0f);
             }
         });
-
+*/
         gaugeWater = (FreakyGauge)findViewById(R.id.gaugeWater);
         gaugeWater.setActiveMode(false);
         gaugeWater.setLegend(getString(R.string.water_lb_relay_on));
 
-        FreakyButton fb1, fb2;
-        fb1 = (FreakyButton)findViewById(R.id.btPower);
-        fb1.addIcon(R.drawable.icon_water);
-        fb1.setIconIdx(0);
+        final TextView textTime = (TextView)findViewById(R.id.textTime);
+        textTime.setTypeface(FontUtils.loadFontFromAssets(getBaseContext(), FontUtils.FONT_TRIPLE_DOT_DIGITAL));
 
-        fb2 = (FreakyButton)findViewById(R.id.btCold);
-        fb2.addIcon(R.drawable.icon_battery);
-        fb2.setIconIdx(0);
-        fb2.setOnClickListener(new View.OnClickListener() {
+        mUIUpdater = new UIUpdater(new Runnable() {
+            @Override
+            public void run() {
+                SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+                String formattedDate = df.format(new Date());
+                textTime.setText(formattedDate);
+                if (dlgConsoleTM != null)
+                    dlgConsoleTM.refresh();
+                else {
+                    gaugeBattery.invalidate();
+                }
+
+            }
+        });
+
+        FreakyButton fb;
+        fb = (FreakyButton)findViewById(R.id.btPower);
+        fb.setIconSize(16);
+        fb.addIcon(R.drawable.car_battery);
+        fb.setIconIdx(0);
+
+        fb = (FreakyButton)findViewById(R.id.btCold);
+        fb.setIconSize(16);
+        fb.addIcon(R.drawable.icon_snow);
+        fb.setIconIdx(0);
+        fb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onColdButtonClick();
@@ -251,6 +337,13 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
         FreakyRow fr = (FreakyRow)findViewById(R.id.rawElec);
         fr.setLabel(getString(R.string.row_electricity));
+        fr.setActivationMode(true);
+        fr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onElecButtonClick();
+            }
+        });
 
         fr = (FreakyRow)findViewById(R.id.rawLights);
         fr.setLabel(getString(R.string.row_lightning));
@@ -274,14 +367,12 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
         fr = (FreakyRow)findViewById(R.id.rawParameters);
         fr.setMainRow();
-        fr.setLabel(getString(R.string.row_electricity_dispatch));
-        fr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onElecButtonClick();
-            }
-        });
+        fr.setLabel(getString(R.string.row_header));
+
+
+        mUIUpdater.startUpdates();
         fr.setActivationMode(true);
+
     }
 
     private void onHeaterButtonClick() {
@@ -321,9 +412,20 @@ public class ArduinoCommunicatorActivity extends Activity implements
         fr.setActivationMode(lightStatus);
     }
 
-    public void gotTM(char[] tm){
+    @Override
+    public void tensionUpdated(float[] tensionList)
+    {
+        float auxBatt = managerElectrical.getTension(TensionItem.eTensionType.U_BATT_AUX);
+        gaugeBattery.set_Value(auxBatt);
+        gaugeBattery.set_ValueText(Float.toString(auxBatt) + "V");
+    }
+
+    public void gotTM(char[] tm)
+    {
         if (tm.length==0) return;
-        switch (tm[0]) {
+
+        switch (tm[0])
+        {
             case CampDuinoProtocol.TM_LIGHT :
                 managerLights.updateFromTM(tm);
                 break;
@@ -352,123 +454,14 @@ public class ArduinoCommunicatorActivity extends Activity implements
             default :
                 break;
         }
+
+        if (tmListener != null)
+        {
+            tmListener.onReceivedRawTM(tm);
+        }
     }
 
-    private void simulateFromTC(char[] tc){
-        if (tc[0]== CampDuinoProtocol.PROT_TC_LIGHT){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_LIGHT;
-            tm[1] = tc[1];
-            tm[2] = managerLights.getLight(tm[1]).getLightType().value;
-            tm[3] = tc[2];
-            tm[4] = tc[3];
-            tm[5] = tc[4];
-            tm[6] = tc[5];
-            gotTM(tm);
-        }
-        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_WATER_MODULE.value){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (tc[1]==1? (char)1:0);
-            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
-            gotTM(tm);
-        }
-        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_AUX_MODULE.value){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (tc[1]==1? (char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
-            gotTM(tm);
-        }
-        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_COLD_MODULE.value){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (tc[1]==1? (char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
-            gotTM(tm);
-        }
-        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE.value){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (tc[1]==1? (char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
-            gotTM(tm);
-        }
-        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE.value){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (tc[1]==1? (char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
-            gotTM(tm);
-        }
-        else if (tc[0] == CampDuinoProtocol.PROT_TC_COLD){
-            char[]tm = new char[6];
-            tm[0] = CampDuinoProtocol.TM_COLD_HOT;
-            // cold temp consigne value, from java to java there is no issue with signed/unsigned as seen with arduino so compensating TM with +128 when simulating
-            char tempCorrected = tc[1];
-            tempCorrected = (char) (tempCorrected + (char)128);
-            tm[1] = tempCorrected;
-            // TODO : retrieve HOT parameters from heat manager
-            tm[2] = (char)(managerHeat.getHeatParams().getStatus().value);
-            tm[3] = CampDuinoProtocol.encodeTempToChar(managerHeat.getHeatParams().getTempConsigne());
-            tm[4] = (char)(managerHeat.getHeatParams().getFanSpeed(0));
-            tm[5] = (char)(managerHeat.getHeatParams().getFanSpeed(1));
-            gotTM(tm);
 
-            tm = new char[managerTemp.getTempsCount()+1];
-            tm[0] = CampDuinoProtocol.TM_TEMPERATURE;
-            char newTemp = (char)(tc[1] -2);
-            tm[1] = newTemp;
-            for (int i=1; i<tm.length-1; i++){
-                tm[i+1] = CampDuinoProtocol.encodeTempToChar(managerTemp.getTempFromIdx(i));
-            }
-            gotTM(tm);
-        }
-        else if (tc[0] == CampDuinoProtocol.PROT_TC_HEATER){
-            char[]tm = new char[6];
-            tm[0] = CampDuinoProtocol.TM_COLD_HOT;
-            tm[1] = CampDuinoProtocol.encodeTempToChar(managerCold.getTempConsigne());
-
-            tm[2] = tc[1];
-            tm[3] = tc[2];
-            tm[4] = tc[3];
-            tm[5] = tc[4];
-            gotTM(tm);
-
-            tm = new char[managerTemp.getTempsCount()+1];
-            tm[0] = CampDuinoProtocol.TM_TEMPERATURE;
-            char newTemp = (char)(tc[2] - 1);
-            tm[2] = newTemp;
-            tm[3] = newTemp;
-
-            tm[1] = CampDuinoProtocol.encodeTempToChar(managerTemp.getTempFromIdx(0));
-            for (int i=3; i<tm.length-1; i++){
-                tm[i+1] = CampDuinoProtocol.encodeTempToChar(managerTemp.getTempFromIdx(i));
-            }
-            gotTM(tm);
-        }
-
-    }
 
 
 
@@ -502,4 +495,10 @@ public class ArduinoCommunicatorActivity extends Activity implements
         fr.setActivationMode(ret);
         return ret;
     }
+
+    @Override
+    public void onReceivedRawTM(char[] data) {
+        gotTM(data);
+    }
+
 }

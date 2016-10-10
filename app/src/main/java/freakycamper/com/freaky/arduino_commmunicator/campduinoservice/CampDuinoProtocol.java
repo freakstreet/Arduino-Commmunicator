@@ -97,14 +97,50 @@ public class CampDuinoProtocol {
         return ret;
     }
 
+    public static char[] encodeEncodedFloatToTm(float val){
+        //
+        //  the value is multiplied by 100
+        //  then rounded
+        //  and coded to 15bits
+        //  the 16th bit is 0 if pisitive, 1 if negative
+        //
+        //  12.7 -->    1270 -->    0x04 0xF6
+        //  -12.7 -->   1270 -->    0x84 0xF6
+        //
+        char[] ret = new char[2];
+        boolean positive  = val >= 0;
+        short s = (short) (Math.round(val*100));
+
+        char lsb = (char)(s & 0xFF);
+        char msb = (char)((s & 0xFF00)>> 8);
+
+        if (positive) msb = (char)(msb | 0x80);
+        ret[0] = msb;
+        ret[1] = lsb;
+
+        return ret;
+    }
+
     private static float decodeEncodedFloatFromTm(char msb, char lsb){
-        boolean positive = ((byte)msb & 0x80) == 0;
-        float m=msb, l = lsb;
-        float val = 256*m+l;
-        if (positive)
-            return val/100;
+        //
+        //  the value is multiplied by 100
+        //  then rounded
+        //  and coded to 15bits
+        //  the 16th bit is 0 if positive, 1 if negative
+        //
+        //  12.7 -->    1270 -->    0x04 0xF6
+        //  -12.7 -->   1270 -->    0x84 0xF6
+        //
+
+        char sign = (char)(msb & 0x80);
+        char msb7bit = (char)(msb & 0x7F);
+        short tmpVal = (short)( (msb7bit<<8) | lsb);
+        float val = tmpVal;
+        val = val / 100;
+        if (sign == 0)
+            return val;
         else{
-            return (val-0x10000)/100;
+            return -val;
         }
     }
 
@@ -166,7 +202,7 @@ public class CampDuinoProtocol {
         for (char c : data){
             int val = c;
             if (i>0) s+= " ";
-            s += String.format("%02X", val);
+            s += "0x" + String.format("%02X", val);
             i++;
         }
         return s;
@@ -176,7 +212,7 @@ public class CampDuinoProtocol {
         char[] chs = new char[data.length];
         for (int i=0;i<data.length; i++)
             chs[i] = (char)data[i];
-            return getCharArrayValsHexString(chs);
+        return getCharArrayValsHexString(chs);
     }
 
 }

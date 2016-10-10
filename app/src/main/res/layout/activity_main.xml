@@ -48,7 +48,7 @@
 
     </LinearLayout>
 
-    <view
+    view
         class="freakycamper.com.freaky.arduino_commmunicator.gui.clock.FlipClock"
         android:layout_marginTop="25px"
         android:layout_centerHorizontal="true"
@@ -98,5 +98,15 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:background="@drawable/usb"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:id="@+id/textTime"
+        android:layout_below="@+id/img_usb_status"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/background_light"
+        android:textSize="32dp" />
 
 </RelativeLayout>

@@ -15,6 +15,7 @@ public class FontUtils {
     public static final String FONT_DOSIS_EXTRA_LIGHT   = "Dosis-ExtraLight.ttf";
     public static final String FONT_DOSIS_LIGHT         = "Dosis-Light.ttf";
     public static final String FONT_DOSIS_MEDIUM        = "Dosis-Medium.ttf";
+    public static final String FONT_TRIPLE_DOT_DIGITAL  = "Triple_dot_digital-7.ttf";
 
     // store the opened typefaces(fonts)
     private static final Hashtable<String, Typeface> mCache = new Hashtable<String, Typeface>();

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -38,7 +39,6 @@ public class DialogFridge extends DialogPopUpDelayed  {
 
     public DialogFridge(Context context, final ColdManager manager) {
         super(context, "Frigo", R.layout.layout_fridge, android.R.style.Theme_DeviceDefault);
-
         int tempInt = Math.round(manager.getTempConsigne());
 
         setDimensions(400, 350);

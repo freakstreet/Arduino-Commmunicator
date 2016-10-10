@@ -113,6 +113,47 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
         for (ListenerRelayModuleUpdate listener : _lRelayModuleListener) listener.relayModuleUpdated();
     }
 
+    @Override
+    public String getStringFromTm(char[] tm)
+    {
+        String str = "";
+
+        switch (tm[0])
+        {
+            case CampDuinoProtocol.TM_CURRENT:
+                str += "Currents:";
+                for (int i=0;i<_currents.length; i++)
+                {
+                    str += ElectricalItem.currentNames[i] + " " + Float.toString(_currents[i]) + "A";
+                    if (i < _currents.length-1)
+                        str += " - ";
+                }
+                break;
+            case CampDuinoProtocol.TM_TENSION:
+                str += "Tensions:";
+                for (int i=0;i<_tensions.length; i++)
+                {
+                    str += ElectricalItem.tensionNames[i] + " " + Float.toString(_tensions[i]) + "V";
+                    if (i < _tensions.length-1)
+                        str += " - ";
+                }
+                break;
+            case CampDuinoProtocol.TM_RELAY:
+                str += "Relays status:";
+                for (int i=0;i<_relays.length; i++)
+                {
+                    str += ElectricalItem.relayNames[i] + (_relays[i]?" On":" Off");
+                    if (i < _relays.length-1)
+                        str += " - ";
+                }
+                break;
+            case CampDuinoProtocol.TM_ELEC_CONF:
+
+                break;
+        }
+        return str;
+    }
+
     public void updateAlimConfig(char[] tm){
         ElectricalItem.eAlimSource managerPow, fullPow;
         managerPow = (tm[1] ==1? ElectricalItem.eAlimSource.ALIM_AUXILIARY: ElectricalItem.eAlimSource.ALIM_PRIMARY);
@@ -171,4 +212,5 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
     public void switchLightningFunction(){
         _relays[ElectricalItem.eRelayType.R_LIGHT.value] = listenerSwitchLightModule.functionSwitch();
     }
+
 }

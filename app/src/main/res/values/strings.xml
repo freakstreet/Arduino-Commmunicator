@@ -8,7 +8,7 @@
 
     <string name="title_dialog_water">Gestion de l\'eau</string>
 
-    <string name="row_electricity_dispatch">Panneau electrique</string>
+    <string name="row_header">FreakyCamper control solution</string>
     <string name="row_electricity">Electricité</string>
     <string name="row_lightning">Eclairage</string>
     <string name="row_heater">Chauffage</string>

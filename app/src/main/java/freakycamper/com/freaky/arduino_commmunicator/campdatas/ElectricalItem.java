@@ -8,13 +8,17 @@ public class ElectricalItem {
     public static int   CURRENT_COUNT       = 7;
     public static char  PROT_RELAYS_COUNT   = 6;
 
+    public static String[] currentNames = {"Eau", "Frigo", "Aux", "Chauffage", "Spare", "Lumière", "unknown"};
+    public static String[] tensionNames = {"Aux", "Prim", "Niveau eau"};
+    public static String[] relayNames = {"Eau", "Frigo", "Aux", "Chauffage", "Spare", "Lumière"};
+
     public enum eRelayType{
-        R_COLD      ((char)0),
-        R_WATER     ((char)1),
-        R_HEATER    ((char)2),
-        R_LIGHT     ((char)3),
-        R_AUX       ((char)4),
-        R_SPARE     ((char)5);
+        R_WATER     ((char)0),
+        R_COLD      ((char)1),
+        R_AUX       ((char)2),
+        R_HEATER    ((char)3),
+        R_SPARE     ((char)4),
+        R_LIGHT     ((char)5);
 
         public char value;
         private eRelayType(char value) {

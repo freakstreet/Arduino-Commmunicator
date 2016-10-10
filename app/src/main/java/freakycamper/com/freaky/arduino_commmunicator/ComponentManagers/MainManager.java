@@ -25,5 +25,13 @@ public class MainManager {
         return _sendTcListener;
     }
 
+    public String getStringFromTm(char[] tm)
+    {
+        String str = "";
+        for (int i=0; i<tm.length; i++)
+            str += " 0x" + Integer.toHexString(tm[i]);
+        return str + "\n";
+    }
+
 
 }

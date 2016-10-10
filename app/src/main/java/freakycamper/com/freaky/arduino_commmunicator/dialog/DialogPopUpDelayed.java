@@ -1,10 +1,12 @@
 package freakycamper.com.freaky.arduino_commmunicator.dialog;
 
+import android.app.ActionBar;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 
 import java.util.ArrayList;

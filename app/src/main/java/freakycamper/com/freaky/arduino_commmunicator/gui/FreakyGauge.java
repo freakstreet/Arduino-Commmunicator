@@ -27,6 +27,9 @@ public class FreakyGauge extends ImageView {
     private static int NO_ICON = -1;
 
     boolean active_mode = false;
+    boolean numerical_mode = false;
+    float min, max, numerical_value = 0;
+    String strValue = "N/A";
     Bitmap bBackground = null, bCircleMask= null, bMask1= null, bMask2= null, bIcon = null;
     int _percentFill = 50;
     ArrayList<Integer> lst_icons;
@@ -56,7 +59,8 @@ public class FreakyGauge extends ImageView {
         int middle = Math.min(getWidth(), getHeight())/2;
 
         // **** crée le gauge background ****
-        bBackground = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.gauge), this.getWidth(), this.getHeight(), true);
+        Bitmap bTmp = BitmapFactory.decodeResource(getResources(), R.drawable.gauge);
+        bBackground = Bitmap.createScaledBitmap(bTmp, this.getWidth(), this.getHeight(), true);
 
         // **** crée le masque circulaire de remplissage
         bCircleMask = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
@@ -109,15 +113,39 @@ public class FreakyGauge extends ImageView {
         return text;
     }
 
+    public void setNumericalMode(float min, float max)
+    {
+        numerical_mode = true;
+        this.min = min;
+        this.max = max;
+    }
+
+    public void set_ValueText(String strVal)
+    {
+        strValue = strVal;
+    }
+
+    public void set_Value(float val)
+    {
+        numerical_value = val;
+
+        if (val > max) set_percentFill(100);
+        else if (val<min) set_percentFill(0);
+        else
+        {
+            float percent = 100.0f * (val-min)/(max-min);
+            int pct = Math.round(percent);
+            set_percentFill(pct);
+        }
+    }
+
     public void set_percentFill(int value){
         int newVal = Math.min(Math.max(0, value), 100);
         if (newVal != _percentFill){
             _percentFill = newVal;
             if (bMask1 != null)
                 preloadMasks();
-            this.invalidate();
         }
-
     }
 
     public void setFont(Typeface newFont){
@@ -197,14 +225,20 @@ public class FreakyGauge extends ImageView {
         canvas.drawBitmap(bStep22, 0, 0, null);
         canvas.drawBitmap(bStep12, 0, 0, null);
 
-        // **** Affichage du pourcentage ****
+        // **** Affichage de la valeur ****
         Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_EXTRA_LIGHT));
         textPaint.setARGB(255, 255, 255, 255);
         textPaint.setTextAlign(Paint.Align.CENTER);
         //textPaint.setTypeface(font);
         textPaint.setTextSize(40);
-        canvas.drawText(_percentFill +"%", w/2, 10+h/2, textPaint);
+        if (!numerical_mode) {
+            canvas.drawText(_percentFill + "%", w / 2, 10 + h / 2, textPaint);
+        }
+        else
+        {
+            canvas.drawText(strValue, w / 2, 10 + h / 2, textPaint);
+        }
 
         // **** Affichage de la légende ****
         textPaint.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_LIGHT));

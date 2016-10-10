@@ -50,14 +50,25 @@ public class FreakyButton extends ImageView {
     }
 
     public void preloadIcon(){
-        int ratio = 1;
+        float ratio = 1;
+        float w,h, s;
+
         // **** load icon bitmap mask ****
         bIcon = BitmapFactory.decodeResource(getResources(), lst_icons.get(icon_idx));
-        if (bIcon.getHeight()>bIcon.getWidth())
-            ratio = bIcon.getHeight()/iconSize;
+        w = bIcon.getWidth();
+        h = bIcon.getHeight();
+        s = iconSize;
+
+        if (h>w)
+            ratio = h/s;
         else
-            ratio = bIcon.getWidth()/iconSize;
-        bIcon = Bitmap.createScaledBitmap(bIcon, bIcon.getWidth() / ratio, bIcon.getHeight() / ratio, true);
+            ratio = w/s;
+
+        float fw, fh;
+        fw = w / ratio;
+        fh = h / ratio;
+
+        bIcon = Bitmap.createScaledBitmap(bIcon, Math.round(fw), Math.round(fh), true);
     }
 
     public boolean setIconIdx(int idx){
@@ -82,8 +93,9 @@ public class FreakyButton extends ImageView {
 
         // **** empilement des images ****
         canvas.drawBitmap(bBackground, 0, 0, null);
-        if (icon_idx>NO_ICON)
-            canvas.drawBitmap(bIcon, (getWidth()-bIcon.getWidth())/2, (getHeight()-bIcon.getHeight())/2, null);
+        if (icon_idx>NO_ICON) {
+            canvas.drawBitmap(bIcon, (getWidth() - 10 - bIcon.getWidth()) / 2, (getHeight() - 7 - bIcon.getHeight()) / 2, null);
+        }
     }
 
 

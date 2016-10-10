@@ -175,7 +175,7 @@ public class ArduinoCommunicatorService extends Service {
         mUsbConnection = usbManager.openDevice(mUsbDevice);
         if (mUsbConnection == null) {
             if (DEBUG) Log.e(TAG, "Opening USB device failed!");
-            Toast.makeText(getBaseContext(), getString(R.string.opening_device_failed), Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "ArduinoCommunicatorService.initDevice() openDevice. failed!", Toast.LENGTH_LONG).show();
             return false;
         }
         UsbInterface usbInterface = mUsbDevice.getInterface(1);
@@ -234,6 +234,7 @@ public class ArduinoCommunicatorService extends Service {
                     return;
                 }
                 Toast.makeText(context, "SEND_TC: " + CampDuinoProtocol.getCharArrayValsHexString(dataToSend), Toast.LENGTH_LONG).show();
+                Log.d(TAG, "TC: " + CampDuinoProtocol.getCharArrayValsHexString(dataToSend));
 
                 if (mSenderThread == null)
                     Toast.makeText(context, "mSenderThread is null", Toast.LENGTH_LONG).show();
@@ -324,7 +325,7 @@ public class ArduinoCommunicatorService extends Service {
                 rxBuffer.getFrame(0, footerCount);
 
                 // debug display tm
-                s = "tm identified: " + CampDuinoProtocol.getCharArrayValsHexString(tm);
+                s = "[TM] identified: " + CampDuinoProtocol.getCharArrayValsHexString(tm);
                 Log.d(TAG, s);
 
                 // add tm to sgl database
