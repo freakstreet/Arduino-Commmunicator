@@ -53,7 +53,10 @@ public class HeatItem {
         else return 0;
     }
 
-    public float getTempConsigne() {return _tempTarget;}
+    public float getTempConsigne()
+    {
+        return _tempTarget;
+    }
 
     public boolean isDifferentFrom(HeatItem comp){
         return (this._status != comp._status) ||

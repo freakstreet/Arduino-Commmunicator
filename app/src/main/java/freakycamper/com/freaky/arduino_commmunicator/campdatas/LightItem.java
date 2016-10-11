@@ -16,6 +16,9 @@ public class LightItem {
         }
     };
 
+    public static String[] lightNames = {"L1", "L2", "L3", "L4", "L5", "L6", "L7"};
+    public static String[] lightTypes = {"Switch", "Dimmer", "RGB Dimmer"};
+
     private eLightTypes _type;
     private int _id;
     private char _r, _g, _b, _dimm;

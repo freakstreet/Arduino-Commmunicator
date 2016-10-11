@@ -9,7 +9,7 @@ public class TemperatureItem {
 
     public static int   TEMP_SENSORS_COUNT = 7;
 
-    public static String[] tempNames = {"T1", "T2", "T3", "T4", "T5", "T6", "T7"};
+    public static String[] tempNames = {"T Fridge", "T Ambiant1", "T Ambiant2", "T Water prim", "T Water sec", "T Heated air", "T External"};
 
     float _temp;
     Date _date;
@@ -20,7 +20,7 @@ public class TemperatureItem {
         TEMP_INSIDE2    ((char)3),
         TEMP_WATER_PRIM ((char)4),
         TEMP_WATER_SEC  ((char)5),
-        TEMP_HEAR_AIR   ((char)6),
+        TEMP_HEATED_AIR ((char)6),
         TEMP_OUTSIDE    ((char)7);
 
         public char value;
