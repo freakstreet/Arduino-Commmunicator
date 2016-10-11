@@ -146,4 +146,6 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
         updateGui();
     }
 
+
+
 }

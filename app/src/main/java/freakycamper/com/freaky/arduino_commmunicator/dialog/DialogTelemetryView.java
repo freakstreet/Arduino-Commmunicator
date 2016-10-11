@@ -2,6 +2,9 @@ package freakycamper.com.freaky.arduino_commmunicator.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.text.Layout;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Window;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -35,12 +38,14 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
 
     public DialogTelemetryView(Context context) {
         super(context);
+
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
         this.setContentView(R.layout.layout_tm_console );
         tv = (TextView)findViewById(R.id.txtTMTC);
         tbScrool = (ToggleButton)findViewById(R.id.btAutoScrool);
         tbRawFormat = (ToggleButton)findViewById(R.id.btDecodeTm);
 
-        tv.setText("");
+        tv.setMovementMethod(new ScrollingMovementMethod());
     }
 
     public void refresh()
@@ -48,6 +53,18 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
         if (addedText.length() == 0)
             return;
         tv.append(addedText);
+
+        if (tbScrool.isChecked())
+        {
+            final Layout layout = tv.getLayout();
+            if(layout != null){
+                int scrollDelta = layout.getLineBottom(tv.getLineCount() - 1)
+                        - tv.getScrollY() - tv.getHeight();
+                if(scrollDelta > 0)
+                    tv.scrollBy(0, scrollDelta);
+            }
+        }
+
         addedText = "";
         tv.invalidate();
     }
@@ -85,7 +102,7 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
     @Override
     public void onReceivedRawTM(char[] tm) {
 
-        if (tbRawFormat.isChecked())
+        if (!tbRawFormat.isChecked())
         {
             for (int i=0; i<tm.length; i++)
                 addedText += "0x" +(tm[i]<= 0xF?"0":"") +  Integer.toHexString(tm[i]).toUpperCase() + " ";

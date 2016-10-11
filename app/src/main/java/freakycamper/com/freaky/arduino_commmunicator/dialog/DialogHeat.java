@@ -300,13 +300,15 @@ public class DialogHeat extends DialogPopUpDelayed implements AdapterView.OnItem
     }
 
     private void actionSendTc(HeatItem param){
-        char[] tc = new char[5];
+        char[] tc = new char[6];
+        char tmp[] = CampDuinoProtocol.encodeFloatToTm(param.getTempConsigne());
         tc[0] = (char) CampDuinoProtocol.PROT_TC_HEATER;
 
         tc[1] = (char)param.getStatus().value;
-        tc[2] = CampDuinoProtocol.encodeTempToChar(param.getTempConsigne());
-        tc[3] = (char)param.getFanSpeed(0);
-        tc[4] = (char)param.getFanSpeed(1);
+        tc[2] = tmp[0];
+        tc[3] = tmp[1];
+        tc[4] = (char)param.getFanSpeed(0);
+        tc[5] = (char)param.getFanSpeed(1);
 
         TcSender.sendTC(tc);
     }

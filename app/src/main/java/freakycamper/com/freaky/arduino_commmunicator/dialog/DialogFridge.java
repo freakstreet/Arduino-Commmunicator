@@ -33,7 +33,7 @@ import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoP
  */
 public class DialogFridge extends DialogPopUpDelayed  {
 
-    public static final int FRIDGE_GRAPH_PLOTS_NB = 50;
+    public static final int FRIDGE_GRAPH_PLOTS_NB = 20;
 
     Switch _switchColdModule;
 
@@ -46,18 +46,6 @@ public class DialogFridge extends DialogPopUpDelayed  {
         _switchColdModule = (Switch)findViewById(R.id.switch_activate_cold);
         _switchColdModule.setChecked(manager.getColdModuleStatus());
 
-        // Module activation put at the electrical main panel
-  /*      _switchColdModule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Switch s = (Switch) v;
-                boolean askedStatus = s.isChecked();
-                s.setChecked(!askedStatus);
-                manager.getSendTcListener().sendTC(CampDuinoProtocol.buildSwitchRelayTC(CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_COLD_MODULE, askedStatus));
-            }
-        });
-        setMonitoredComponent(_switchColdModule);
-*/
         TextView txt = (TextView)findViewById(R.id.text_fridge_temp);
         txt.setText(String.valueOf(manager.getTempFridge()) + "°C");
 
@@ -164,5 +152,9 @@ public class DialogFridge extends DialogPopUpDelayed  {
         if (status != _switchColdModule.isChecked()){
             _switchColdModule.setChecked(status);
         }
+    }
+
+    public void updateGui()
+    {
     }
 }
