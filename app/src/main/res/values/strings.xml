@@ -62,5 +62,9 @@
     <string name="simulation_mode">Simulation mode activated</string>
     <string name="found">found!</string>
 
+    <string name="DTM_scrool">Auto scrool</string>
+    <string name="DTM_no_scrool">No scrool</string>
+    <string name="DTM_decode">Decode TM</string>
+    <string name="DTM_no_decode">RAW TM</string>
 
 </resources>
