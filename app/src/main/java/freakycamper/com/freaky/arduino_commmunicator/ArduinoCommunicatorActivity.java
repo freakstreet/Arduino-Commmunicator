@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -67,7 +68,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
         GotTmListener
 {
 
-    private final static boolean SIMULATE_BOARD = false;
+    private final static boolean SIMULATE_BOARD = true;
 
     private static final int ARDUINO_USB_VENDOR_ID = 0x2341;
     private static final int ARDUINO_UNO_USB_PRODUCT_ID = 0x01;
@@ -92,6 +93,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
     private UIUpdater mUIUpdater;
     private FreakyGauge gaugeBattery, gaugeWater;
     private DialogTelemetryView dlgConsoleTM;
+    private TextView textTime;
 
     private final static String TAG = "ArduinoCommunicatorActivity";
     private final static boolean DEBUG = false;
@@ -225,7 +227,22 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
     private void swowTmConsoleDialog()
     {
+        dlgConsoleTM = new DialogTelemetryView(this);
+        tmListener = dlgConsoleTM;
+        dlgConsoleTM.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                tmListener = null;
+                dlgConsoleTM = null;
+            }
+        });
 
+        dlgConsoleTM.setColdManager(managerCold);
+        dlgConsoleTM.setElectricalManager(managerElectrical);
+        dlgConsoleTM.setHeatManager(managerHeat);
+        dlgConsoleTM.setLightManager(managerLights);
+        dlgConsoleTM.setTemperatureManager(managerTemp);
+        dlgConsoleTM.setWaterManager(managerWater);
 
         dlgConsoleTM.showDialog();
     }
@@ -246,22 +263,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
         managerElectrical.setListenerSwitchLightModule(this);
 
-        dlgConsoleTM = new DialogTelemetryView(this);
-        tmListener = dlgConsoleTM;
-        dlgConsoleTM.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                tmListener = null;
-                dlgConsoleTM = null;
-            }
-        });
-
-        dlgConsoleTM.setColdManager(managerCold);
-        dlgConsoleTM.setElectricalManager(managerElectrical);
-        dlgConsoleTM.setHeatManager(managerHeat);
-        dlgConsoleTM.setLightManager(managerLights);
-        dlgConsoleTM.setTemperatureManager(managerTemp);
-        dlgConsoleTM.setWaterManager(managerWater);
+        // **** Initialize GUI components ****
+        initGuiComponents();
 
         if (simulator != null)
         {
@@ -274,8 +277,6 @@ public class ArduinoCommunicatorActivity extends Activity implements
             simulator.startSimulator();
         }
 
-        // **** Initialize GUI components ****
-        initGuiComponents();
     }
 
     private void initGuiComponents(){
@@ -287,34 +288,18 @@ public class ArduinoCommunicatorActivity extends Activity implements
         gaugeBattery.setNumericalMode(11.5f, 12.7f);
         gaugeBattery.set_percentFill(50);
         gaugeBattery.setLegend(getString(R.string.battery_lb_level) + " " + getString(R.string.battery_auxiliary));
-/*        gaugeBattery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FreakyGauge g = (FreakyGauge) v;
-                g.set_ValueText("12.0V");
-                g.set_Value(12.0f);
-            }
-        });
-*/
+
         gaugeWater = (FreakyGauge)findViewById(R.id.gaugeWater);
         gaugeWater.setActiveMode(false);
         gaugeWater.setLegend(getString(R.string.water_lb_relay_on));
 
-        final TextView textTime = (TextView)findViewById(R.id.textTime);
+        textTime = (TextView)findViewById(R.id.textTime);
         textTime.setTypeface(FontUtils.loadFontFromAssets(getBaseContext(), FontUtils.FONT_TRIPLE_DOT_DIGITAL));
 
         mUIUpdater = new UIUpdater(new Runnable() {
             @Override
             public void run() {
-                SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-                String formattedDate = df.format(new Date());
-                textTime.setText(formattedDate);
-                if (dlgConsoleTM != null)
-                    dlgConsoleTM.refresh();
-                else {
-                    gaugeBattery.invalidate();
-                }
-
+                updateGui();
             }
         });
 
@@ -405,6 +390,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
         boolean heatStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER);
         FreakyRow fr = (FreakyRow)findViewById(R.id.rawHeater);
         fr.setActivationMode(heatStatus);
+        fr.invalidate();
 
         // Etat module lumière
         boolean lightStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT);
@@ -499,6 +485,25 @@ public class ArduinoCommunicatorActivity extends Activity implements
     @Override
     public void onReceivedRawTM(char[] data) {
         gotTM(data);
+    }
+
+    private void updateGui()
+    {
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+
+        if (managerElectrical.isDisplayingDialog()) managerElectrical.updateDialog();
+        else if (managerCold.isDisplayingDialog()) managerCold.updateDialog();
+        else if (managerHeat.isDisplayingDialog()) managerHeat.updateDialog();
+        else if (managerLights.isDisplayingDialog()) managerLights.updateDialog();
+        else if (dlgConsoleTM != null)
+            dlgConsoleTM.refresh();
+        else {
+            String formattedDate = df.format(new Date());
+            textTime.setText(formattedDate);
+            gaugeBattery.invalidate();
+            relayModuleUpdated();
+        }
+
     }
 
 }
