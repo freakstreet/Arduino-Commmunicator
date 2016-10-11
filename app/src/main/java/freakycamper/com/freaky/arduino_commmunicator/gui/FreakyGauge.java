@@ -106,7 +106,7 @@ public class FreakyGauge extends ImageView {
 
     public void setLegend(String newText){
         text = newText;
-        this.invalidate();
+ //       this.invalidate();
     }
 
     public String getLegend(){

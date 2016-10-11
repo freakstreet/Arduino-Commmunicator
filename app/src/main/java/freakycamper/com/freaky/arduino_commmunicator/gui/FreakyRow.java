@@ -131,13 +131,13 @@ public class FreakyRow extends ImageView {
     private void activate(){
         activated = true;
         this.setClickable(true);
-        this.invalidate();
+ //       this.invalidate();
     }
 
     private void desactivate(){
         activated = false;
         this.setClickable(false);
-        this.invalidate();
+ //       this.invalidate();
     }
 
     public boolean getActivatedStatus(){
