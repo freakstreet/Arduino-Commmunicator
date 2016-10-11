@@ -66,13 +66,13 @@ public class DeviceSimulator {
                 u2 = 11.5f +2.5f * r.nextFloat();
                 u3 = 5f * r.nextFloat();
                 tm[pos++] = CampDuinoProtocol.TM_TENSION;
-                tmp = CampDuinoProtocol.encodeEncodedFloatToTm(u1);
+                tmp = CampDuinoProtocol.encodeFloatToTm(u1);
                 tm[pos++] = tmp[0];
                 tm[pos++] = tmp[1];
-                tmp = CampDuinoProtocol.encodeEncodedFloatToTm(u2);
+                tmp = CampDuinoProtocol.encodeFloatToTm(u2);
                 tm[pos++] = tmp[0];
                 tm[pos++] = tmp[1];
-                tmp = CampDuinoProtocol.encodeEncodedFloatToTm(u3);
+                tmp = CampDuinoProtocol.encodeFloatToTm(u3);
                 tm[pos++] = tmp[0];
                 tm[pos++] = tmp[1];
 
@@ -84,7 +84,7 @@ public class DeviceSimulator {
                 tm[pos++] = CampDuinoProtocol.TM_CURRENT;
                 for (int i=0;i<5;i++)
                 {
-                    tmp = CampDuinoProtocol.encodeEncodedFloatToTm(10f * r.nextFloat());
+                    tmp = CampDuinoProtocol.encodeFloatToTm(10f * r.nextFloat());
                     tm[pos++] = tmp[0];
                     tm[pos++] = tmp[1];
                 }
@@ -92,8 +92,60 @@ public class DeviceSimulator {
                 break;
 
             case 2:     // generate random temps
-
+                tm = new char[15];
+                tmp = new char[2];
+                tm[pos++] = CampDuinoProtocol.TM_TEMPERATURE;
+                // Fridge
+                float t = managerCold.getTempConsigne();
+                if (t < -50) t = 8;
+                t = t - 1 + 2*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                // Inside 1
+                t = 15 + 15*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                // Inside 2
+                t = t -1 + 2*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                // T Water primary
+                t = 19 + 2*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                // T Water secondary
+                t = 60 + 10*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                // T Heated air
+                t = 30 + 15*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                // T Outside
+                t = 2 + 5*r.nextFloat();
+                tmp = CampDuinoProtocol.encodeFloatToTm(t);
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                generateTM(tm);
                 break;
+
+            case 3 :    // generate Relays TM
+                tm = new char[8];
+                tm[pos++] = CampDuinoProtocol.TM_RELAY;
+                tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
+                tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
+                tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
+                tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
+                tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+                tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
+                generateTM(tm);
+
         }
     }
 
@@ -138,102 +190,74 @@ public class DeviceSimulator {
         else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_WATER_MODULE.value){
             char[] tm = new char[7];
             tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (tc[1]==1? (char)1:0);
-            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[1] = (tc[1]==1? (char)1:0);
+            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
+            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
+            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
+            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
             generateTM(tm);
         }
         else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_AUX_MODULE.value){
             char[] tm = new char[7];
             tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (tc[1]==1? (char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
+            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
+            tm[3] = (tc[1]==1? (char)1:0);
+            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
+            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
             generateTM(tm);
         }
         else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_COLD_MODULE.value){
             char[] tm = new char[7];
             tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (tc[1]==1? (char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
+            tm[2] = (tc[1]==1? (char)1:0);
+            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
+            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)?(char)1:0);
+            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
             generateTM(tm);
         }
         else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE.value){
             char[] tm = new char[7];
             tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (tc[1]==1? (char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
-            generateTM(tm);
-        }
-        else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE.value){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_RELAY;
-            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
-            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
-            tm[3] = (tc[1]==1? (char)1:0);
-            tm[4] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
-            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
-            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[1] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER)?(char)1:0);
+            tm[2] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_COLD)?(char)1:0);
+            tm[3] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_AUX)?(char)1:0);
+            tm[4] = (tc[1]==1? (char)1:0);
+            tm[5] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
+            tm[6] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
             generateTM(tm);
         }
         else if (tc[0] == CampDuinoProtocol.PROT_TC_COLD){
-            char[]tm = new char[6];
+            char[]tm = new char[8];
+            char tmp[];
             tm[0] = CampDuinoProtocol.TM_COLD_HOT;
-            // cold temp consigne value, from java to java there is no issue with signed/unsigned as seen with arduino so compensating TM with +128 when simulating
-            char tempCorrected = tc[1];
-            tempCorrected = (char) (tempCorrected + (char)128);
-            tm[1] = tempCorrected;
-            // TODO : retrieve HOT parameters from heat manager
-            tm[2] = (char)(managerHeat.getHeatParams().getStatus().value);
-            tm[3] = CampDuinoProtocol.encodeTempToChar(managerHeat.getHeatParams().getTempConsigne());
-            tm[4] = (char)(managerHeat.getHeatParams().getFanSpeed(0));
-            tm[5] = (char)(managerHeat.getHeatParams().getFanSpeed(1));
-            generateTM(tm);
-
-            tm = new char[managerTemp.getTempsCount()+1];
-            tm[0] = CampDuinoProtocol.TM_TEMPERATURE;
-            char newTemp = (char)(tc[1] -2);
-            tm[1] = newTemp;
-            for (int i=1; i<tm.length-1; i++){
-                tm[i+1] = CampDuinoProtocol.encodeTempToChar(managerTemp.getTempFromIdx(i));
-            }
+            tm[1] = tc[1];
+            tm[2] = tc[2];
+            HeatItem h = managerHeat.getHeatParams();
+            tm[3] = (char)(h.getStatus().value);
+            tmp = CampDuinoProtocol.encodeFloatToTm(h.getTempConsigne());
+            tm[4] = tmp[0];
+            tm[5] = tmp[1];
+            tm[6] = (char)(h.getFanSpeed(0));
+            tm[7] = (char)(h.getFanSpeed(1));
             generateTM(tm);
         }
         else if (tc[0] == CampDuinoProtocol.PROT_TC_HEATER){
-            char[]tm = new char[6];
+            char[]tm = new char[8];
+            char tmp[];
             tm[0] = CampDuinoProtocol.TM_COLD_HOT;
-            tm[1] = CampDuinoProtocol.encodeTempToChar(managerCold.getTempConsigne());
-
-            tm[2] = tc[1];
-            tm[3] = tc[2];
-            tm[4] = tc[3];
-            tm[5] = tc[4];
-            generateTM(tm);
-
-            tm = new char[managerTemp.getTempsCount()+1];
-            tm[0] = CampDuinoProtocol.TM_TEMPERATURE;
-            char newTemp = (char)(tc[2] - 1);
-            tm[2] = newTemp;
-            tm[3] = newTemp;
-
-            tm[1] = CampDuinoProtocol.encodeTempToChar(managerTemp.getTempFromIdx(0));
-            for (int i=3; i<tm.length-1; i++){
-                tm[i+1] = CampDuinoProtocol.encodeTempToChar(managerTemp.getTempFromIdx(i));
-            }
+            tmp = CampDuinoProtocol.encodeFloatToTm(managerCold.getTempConsigne());
+            tm[1] = tmp[0];
+            tm[2] = tmp[1];
+            tm[3] = tc[1];
+            tm[4] = tc[2];
+            tm[5] = tc[3];
+            tm[6] = tc[4];
+            tm[7] = tc[5];
             generateTM(tm);
         }
 
