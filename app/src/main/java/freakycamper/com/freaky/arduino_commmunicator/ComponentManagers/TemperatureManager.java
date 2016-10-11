@@ -47,6 +47,26 @@ public class TemperatureManager extends MainManager {
        fireNewTempTmEvent();
     };
 
+    @Override
+    public String getStringFromTm(char[] tm)
+    {
+        String str = "";
+
+        switch (tm[0])
+        {
+            case CampDuinoProtocol.TM_TEMPERATURE:
+                str += "Currents:";
+                for (int i=0;i<_lTempItems.length; i++)
+                {
+                    str += TemperatureItem.tempNames[i] + " " + Float.toString(_lTempItems[i]) + "°C";
+                    if (i < _lTempItems.length-1)
+                        str += " - ";
+                }
+                break;
+        }
+        return str;
+    }
+
     public float getTempFromIdx(int idx){
         return _lTempItems[idx];
     }

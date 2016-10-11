@@ -9,6 +9,8 @@ public class TemperatureItem {
 
     public static int   TEMP_SENSORS_COUNT = 7;
 
+    public static String[] tempNames = {"T1", "T2", "T3", "T4", "T5", "T6", "T7"};
+
     float _temp;
     Date _date;
 
