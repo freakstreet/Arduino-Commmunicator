@@ -27,7 +27,7 @@ public class HeatManager extends MainManager {
         tempTm.addTempTmUpdateListener(new TemperatureManager.OnTempTmReceived() {
             @Override
             public void newTempTm(float[] tempsTm) {
-                updateTemps(tempsTm);
+ //               updateTemps(tempsTm);
             }
         });
 
@@ -65,7 +65,7 @@ public class HeatManager extends MainManager {
 
     @Override
     public void updateFromTM(char[] tm){
-        _heat = new HeatItem(HeatItem.eHeatModuleState.values()[tm[2]], CampDuinoProtocol.decodeTempFromChar(tm[3]), tm[4], tm[5]);
+        _heat = new HeatItem(HeatItem.eHeatModuleState.values()[tm[3]], CampDuinoProtocol.decodeFloatFromTm(tm[4], tm[5]), tm[6], tm[7]);
         if (_dialog != null){
             _dialog.updateFromTm(_heat);
             _heat.updateFanVal( tm[4], true);

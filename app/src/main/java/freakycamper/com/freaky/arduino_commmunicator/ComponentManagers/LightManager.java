@@ -1,10 +1,12 @@
 package freakycamper.com.freaky.arduino_commmunicator.ComponentManagers;
 
 import android.content.Context;
+import android.content.DialogInterface;
 
 import java.util.ArrayList;
 
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.LightItem;
+import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoProtocol;
 import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogLights;
 
 /**
@@ -46,7 +48,41 @@ public class LightManager extends MainManager {
         }
 
         l.updateLightStatus(tm[3], tm[4], tm[5], tm[6]);
-        updateGui();
+    }
+
+    @Override
+    public String getStringFromTm(char[] tm)
+    {
+        String str = "";
+
+        switch (tm[0])
+        {
+            case CampDuinoProtocol.TM_LIGHT:
+                for (int i=0;i<_lLights.size(); i++)
+                {
+                    str += "Lights: ";
+                    LightItem l = _lLights.get(i);
+                    switch (l.getLightType())
+                    {
+                        case NORMAL_ON_OFF:
+                            str += LightItem.lightNames[i] + " type " + LightItem.lightTypes[l.getLightType().value] + " is " + (l.getIsOn()?"ON":"OFF");
+                            break;
+
+                        case DIMMER:
+                            str += LightItem.lightNames[i] + " type " + LightItem.lightTypes[l.getLightType().value] + " Dimm=" + l.getDimmValue();
+                            break;
+
+                        case RGB_DIMMER:
+                            str += LightItem.lightNames[i] + " type " + LightItem.lightTypes[l.getLightType().value] +  " R:" + l.getRedValue() + " G:" + l.getGreenValue() + " B:" + l.getBlueValue();
+                            break;
+                    }
+
+                    if (i < _lLights.size()-1)
+                        str += "\n";
+                }
+                break;
+        }
+        return str;
     }
 
     public int getLightCount(){
@@ -55,13 +91,23 @@ public class LightManager extends MainManager {
 
     public void showDialog(Context context){
         _dialog = new DialogLights(context, this);
+        _dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                removeDialog();
+            }
+        });
+        setDialog(_dialog);
         _dialog.show();
     }
 
+    @Override public void updateDialog()
+    {
+        updateGui();
+    }
+
     private void updateGui(){
-        if (_dialog != null){
-            _dialog.updateGui(this);
-        }
+        _dialog.updateGui(this);
     }
 
     public boolean switchModuleActivation(){

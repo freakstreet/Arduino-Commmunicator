@@ -41,9 +41,7 @@ public class TemperatureManager extends MainManager {
     }
 
     public void updateTemperatures(char[] tm){
-        for (int i=0; i<_lTempItems.length; i++){
-            _lTempItems[i] = CampDuinoProtocol.decodeTempFromChar(tm[i + 1]);
-        }
+        _lTempItems = CampDuinoProtocol.decodeFloatOnlyTm(tm);
        fireNewTempTmEvent();
     };
 
@@ -55,12 +53,15 @@ public class TemperatureManager extends MainManager {
         switch (tm[0])
         {
             case CampDuinoProtocol.TM_TEMPERATURE:
-                str += "Temperatures:";
+                str += "Temperatures1: ";
                 for (int i=0;i<_lTempItems.length; i++)
                 {
                     str += TemperatureItem.tempNames[i] + " " + Float.toString(_lTempItems[i]) + "°C";
                     if (i < _lTempItems.length-1)
-                        str += " - ";
+                    {
+                        if (i == 3) str += "\nTemperatures2: ";
+                        else str += " - ";
+                    }
                 }
                 break;
         }

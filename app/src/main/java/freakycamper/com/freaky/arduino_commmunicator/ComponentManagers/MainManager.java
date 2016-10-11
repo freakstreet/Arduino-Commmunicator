@@ -1,11 +1,15 @@
 package freakycamper.com.freaky.arduino_commmunicator.ComponentManagers;
 
+import android.app.Dialog;
+
 /**
  * Created by lsa on 08/12/14.
  */
 public class MainManager {
 
     SendTcListener _sendTcListener;
+
+    Dialog correspondingDialog = null;
 
     public interface SendTcListener {
         public void sendTC(char[] data);
@@ -31,6 +35,26 @@ public class MainManager {
         for (int i=0; i<tm.length; i++)
             str += " 0x" + Integer.toHexString(tm[i]);
         return str + "\n";
+    }
+
+    protected void setDialog(Dialog dlg)
+    {
+        correspondingDialog = dlg;
+    }
+
+    protected void removeDialog()
+    {
+        correspondingDialog = null;
+    }
+
+    public boolean isDisplayingDialog()
+    {
+        return correspondingDialog != null;
+    }
+
+    public void updateDialog()
+    {
+        // procadure to be overloaded in each corresponding descendant from mainmanager
     }
 
 

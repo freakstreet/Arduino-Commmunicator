@@ -2,6 +2,7 @@ package freakycamper.com.freaky.arduino_commmunicator.ComponentManagers;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +111,6 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
             _relays[i-1] = tm[i] == 1;
             i++;
         }
-        for (ListenerRelayModuleUpdate listener : _lRelayModuleListener) listener.relayModuleUpdated();
     }
 
     @Override
@@ -206,11 +206,23 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
     public void showDialog(Context context, boolean lightModuleActivated){
         _dialog = new DialogElectrical(context, this);
         addRelayModuleListener(_dialog);
+        _dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                removeDialog();
+            }
+        });
+        setDialog(_dialog);
         _dialog.show();
     }
 
     public void switchLightningFunction(){
         _relays[ElectricalItem.eRelayType.R_LIGHT.value] = listenerSwitchLightModule.functionSwitch();
+    }
+
+    @Override public void updateDialog()
+    {
+        _dialog.relayModuleUpdated();
     }
 
 }

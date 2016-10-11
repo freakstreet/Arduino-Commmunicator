@@ -2,6 +2,7 @@ package freakycamper.com.freaky.arduino_commmunicator.ComponentManagers;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 
 import com.google.common.collect.EvictingQueue;
 
@@ -18,6 +19,7 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
 
     public static final int DEFAULT_TEMP_FRIDGE = 6;
     private float                           _tempConsigne = -99;
+    private float                           _lastKnownTemp = -99;
     private EvictingQueue<TemperatureItem>  _tempArray;
     private boolean                         _relayColdStatus = false;
     private ElectricalManager               _elecManager;
@@ -40,18 +42,29 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
 
 
     public void updateColdTm(char[] tm){
-        _tempConsigne = CampDuinoProtocol.decodeTempFromChar(tm[1]);
+        float[] tmp = CampDuinoProtocol.decodeFloatOnlyTm(tm);
+        _tempConsigne = tmp[0];
     }
 
     private void sendTempConsigne(float value){
-        char[] tc = new char[2];
+        char[] tc = new char[3];
+        char[] tmp;
         tc[0] = CampDuinoProtocol.TM_COLD_HOT;
-        tc[0] = CampDuinoProtocol.encodeTempToChar(value);
+        tmp = CampDuinoProtocol.encodeFloatToTm(value);
+        tc[1] = tmp[0];
+        tc[2] = tmp[1];
         sendTc(tc);
     }
 
     public void showDialog(Context context){
         _dialog = new DialogFridge(context, this);
+        _dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                removeDialog();
+            }
+        });
+        setDialog(_dialog);
         _dialog.show();
     }
 
@@ -64,15 +77,12 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
     }
 
     public float getTempFridge(){
-        if (_tempArray.size() == 0) return -99;
-        return _tempArray.element().getTemperature();
+        return _lastKnownTemp;
     }
-
 
     public EvictingQueue<TemperatureItem>getFridgeTempHistoric(){
         return _tempArray;
     }
-
 
     @Override
     public void relayModuleUpdated() {
@@ -85,11 +95,18 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
     @Override
     public void newTempTm(float[] tempsTm) {
         float fridgeTemp = TemperatureItem.getTemperatureFromType(tempsTm, TemperatureItem.eTemperatureType.TEMP_FRIDGE);
-            TemperatureItem t = new TemperatureItem(fridgeTemp);
-            _tempArray.add(t);
-            // add value to database
-            //_dbHelper.registerNewTemp(t);
+        _lastKnownTemp = fridgeTemp;
+        TemperatureItem t = new TemperatureItem(fridgeTemp);
+        _tempArray.add(t);
+        // add value to database
+        //_dbHelper.registerNewTemp(t);
 
 
+    }
+
+    @Override public void updateDialog()
+    {
+        relayModuleUpdated();
+        _dialog.updateGui();
     }
 }
