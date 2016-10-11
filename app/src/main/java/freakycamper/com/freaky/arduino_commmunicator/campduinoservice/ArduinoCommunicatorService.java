@@ -363,7 +363,7 @@ public class ArduinoCommunicatorService extends Service {
             case CampDuinoProtocol.TM_ELEC_CONF:
                 break;
             case CampDuinoProtocol.TM_TEMPERATURE:
-                db.registerTmTemp(CampDuinoProtocol.decodeTempOnlyTm(tm));
+                db.registerTmTemp(CampDuinoProtocol.decodeFloatOnlyTm(tm));
                 break;
             case CampDuinoProtocol.TM_COLD_HOT:
                 break;

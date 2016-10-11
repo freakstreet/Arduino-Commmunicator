@@ -1,8 +1,5 @@
 package freakycamper.com.freaky.arduino_commmunicator.campduinoservice;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 /**
  * Created by lsa on 05/12/14.
  */
@@ -73,9 +70,12 @@ public class CampDuinoProtocol {
     }
 
     public static char[] buildSetFridgeConsigne(float temp){
-        char[] ret = new char[2];
+        char[] ret = new char[3];
+        char tmp[];
         ret[0] = PROT_TC_COLD;
-        ret[1] = encodeTempToChar(temp);
+        tmp = encodeFloatToTm(temp);
+        ret[1] = tmp[0];
+        ret[2] = tmp[1];
         return ret;
     }
 
@@ -97,7 +97,7 @@ public class CampDuinoProtocol {
         return ret;
     }
 
-    public static char[] encodeEncodedFloatToTm(float val){
+    public static char[] encodeFloatToTm(float val){
         //
         //  the value is multiplied by 100
         //  then rounded
@@ -109,19 +109,20 @@ public class CampDuinoProtocol {
         //
         char[] ret = new char[2];
         boolean positive  = val >= 0;
+        if (!positive) val = -val;
         short s = (short) (Math.round(val*100));
 
         char lsb = (char)(s & 0xFF);
         char msb = (char)((s & 0xFF00)>> 8);
 
-        if (positive) msb = (char)(msb | 0x80);
+        if (!positive) msb = (char)(msb | 0x80);
         ret[0] = msb;
         ret[1] = lsb;
 
         return ret;
     }
 
-    private static float decodeEncodedFloatFromTm(char msb, char lsb){
+    public static float decodeFloatFromTm(char msb, char lsb){
         //
         //  the value is multiplied by 100
         //  then rounded
@@ -148,13 +149,13 @@ public class CampDuinoProtocol {
         float[] ret = new float[(tm.length-1)/2];
         int i=1;
         for (float fT:ret){
-            float cVal = decodeEncodedFloatFromTm(tm[2 * i - 1], tm[2 * i]);
+            float cVal = decodeFloatFromTm(tm[2 * i - 1], tm[2 * i]);
             ret[i-1] = cVal;
             i++;
         }
         return ret;
     }
-
+/*
     public static float[] decodeTempOnlyTm(char[] tm) {
         float[] temps = new float[tm.length-1];
         for (int i = 0; i < temps.length; i++)
@@ -162,6 +163,16 @@ public class CampDuinoProtocol {
         return temps;
     }
 
+    public static char encodeTempToChar(float temp){
+        int t = (Math.round(temp)*2);
+        char ret = (char)(t+128) ;
+        return ret;
+    }
+
+    public static float decodeTempFromChar(char value){
+        return (value-128)/2;
+    }
+    */
     public static String charArraytoString(char[] data){
         char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[data.length * 5];
@@ -177,15 +188,6 @@ public class CampDuinoProtocol {
         return new String(hexChars);
     }
 
-    public static char encodeTempToChar(float temp){
-        int t = (Math.round(temp)*2);
-        char ret = (char)t ;
-        return ret;
-    }
-
-    public static float decodeTempFromChar(char value){
-        return (value-128)/2;
-    }
 
     public static char decodeSignedByte(byte b)
     {
