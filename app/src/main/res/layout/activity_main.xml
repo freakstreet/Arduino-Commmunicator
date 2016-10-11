@@ -107,6 +107,6 @@
         android:layout_below="@+id/img_usb_status"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/background_light"
-        android:textSize="32dp" />
+        android:textSize="38dp" />
 
 </RelativeLayout>
