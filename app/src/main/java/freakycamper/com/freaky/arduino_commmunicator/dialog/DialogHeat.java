@@ -1,9 +1,12 @@
 package freakycamper.com.freaky.arduino_commmunicator.dialog;
 
+import android.app.Application;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -43,7 +46,7 @@ public class DialogHeat extends DialogPopUpDelayed implements AdapterView.OnItem
     float[] _infoTemp;
 
     public DialogHeat(final Context context, HeatManager manager, float[] temps) {
-        super(context, context.getText(R.string.dialog_heat).toString(), R.layout.layout_heater, android.R.style.Theme_DeviceDefault);
+        super(context, context.getText(R.string.dialog_heat).toString(), R.layout.layout_heater, R.style.dialog_freaky_heater);
 
         TcSender = manager.getSendTcListener();
         _guiParams = manager.getHeatParams();
@@ -54,28 +57,41 @@ public class DialogHeat extends DialogPopUpDelayed implements AdapterView.OnItem
 
         // Spinner initialisation
         Spinner sp = (Spinner)findViewById(R.id.spinner_heat_mode);
+
         setMonitoredComponent(sp);
         List<String> spinnerArray = new ArrayList<String>();
         for (String s : HeatItem.STR_HEAT_MODE_TEXT){
             spinnerArray.add(s);
         }
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, spinnerArray){
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View v = super.getView(position, convertView, parent);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(context, R.layout.layout_style_spinner, spinnerArray)
+        {
+            public View getView(int position, View convertView, ViewGroup parent)
+            {
+                View v = (View)super.getView(position, convertView, parent);
+                return getListItem(v);
+
+            }
+
+            public View getDropDownView(int position, View convertView, ViewGroup parent)
+            {
+                View v = (View)super.getView(position, convertView, parent);
+                TextView tv = (TextView)getListItem(v);
+                tv.setHeight(60);
+                return tv;
+            }
+
+            private View getListItem(View view)
+            {
+                TextView v = (TextView)view;
                 Typeface externalFont = FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_LIGHT);
-                ((TextView) v).setTypeface(externalFont);
-                ((TextView) v).setTextSize(24);
+                v.setTypeface(externalFont);
+                v.setTextColor(Color.rgb(220, 220, 220));
+                v.setTextSize(30);
+                v.setGravity(Gravity.CENTER);
                 return v;
             }
-            public TextView getDropDownView(int position, View convertView, ViewGroup parent) {
-                TextView v = (TextView) super.getView(position, convertView, parent);
-                v.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_LIGHT));
-                v.setTextSize(24);
-                v.setHeight(40);
-                v.setGravity(Gravity.CENTER_VERTICAL);
-                return v;
-            }
+
         };
 
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down vieww
@@ -335,7 +351,7 @@ public class DialogHeat extends DialogPopUpDelayed implements AdapterView.OnItem
 
        switch (newState){
            case HEAT_MODULE_OFF:
-               h = 100;
+               h = 200;
                lAuto.setVisibility(LinearLayout.GONE);
                lManu.setVisibility(LinearLayout.GONE);
 
@@ -349,7 +365,7 @@ public class DialogHeat extends DialogPopUpDelayed implements AdapterView.OnItem
 
            case HEAT_MODULE_HEAT_AUTO:
            case HEAT_MODULE_VENT_AUTO:
-               h=170;
+               h=250;
                lAuto.setVisibility(LinearLayout.VISIBLE);
                lManu.setVisibility(LinearLayout.GONE);
                bt.setVisibility(LinearLayout.GONE);
@@ -357,13 +373,13 @@ public class DialogHeat extends DialogPopUpDelayed implements AdapterView.OnItem
 
            case HEAT_MODULE_HEAT_MANUAL:
            case HEAT_MODULE_VENT_MANUAL:
-               h=200;
+               h=280;
                lAuto.setVisibility(LinearLayout.GONE);
                lManu.setVisibility(LinearLayout.VISIBLE);
                bt.setVisibility(LinearLayout.GONE);
                break;
        }
-       setDimensions(400, h);
+       setDimensions(500, h);
        _guiParams.updateState(newState);
    }
 
