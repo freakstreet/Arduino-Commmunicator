@@ -42,9 +42,12 @@ public class DialogPopUpDelayed extends Dialog {
 
         int titleId = context.getResources().getIdentifier("action_bar_title", "id", "android");
         TextView tv = (TextView) findViewById(titleId);
-        tv.setTypeface(FontUtils.loadFontFromAssets(context, FontUtils.FONT_DOSIS_LIGHT));
-        tv.setTextSize(24);
 
+        if (tv != null)
+        {
+            tv.setTypeface(FontUtils.loadFontFromAssets(context, FontUtils.FONT_DOSIS_LIGHT));
+            tv.setTextSize(24);
+        }
 
         this.getWindow().setWindowAnimations(R.style.dialog_animation_fade);
     }
