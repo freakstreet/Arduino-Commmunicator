@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Window;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -37,7 +38,8 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
     private WaterManager managerWater = null;
 
     public DialogTelemetryView(Context context) {
-        super(context);
+        super(context, android.R.style.Theme_Holo_Dialog);
+
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
         this.setContentView(R.layout.layout_tm_console );
@@ -67,6 +69,11 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
 
         addedText = "";
         tv.invalidate();
+    }
+
+    public boolean keepAlive(){
+        CheckBox cb = (CheckBox)findViewById(R.id.cbKeepAlive);
+        return cb.isChecked();
     }
 
     public void showDialog(){
