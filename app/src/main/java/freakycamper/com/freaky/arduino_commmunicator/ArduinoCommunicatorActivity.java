@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,6 +31,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -58,6 +58,7 @@ import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyButton;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyRow;
 import freakycamper.com.freaky.arduino_commmunicator.gui.UIUpdater;
+import freakycamper.com.freaky.arduino_commmunicator.utils.AcceleroMonitoring;
 import freakycamper.com.freaky.arduino_commmunicator.utils.FontUtils;
 
 public class ArduinoCommunicatorActivity extends Activity implements
@@ -65,7 +66,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
         ElectricalManager.ListenerRelayModuleUpdate,
         ElectricalManager.ListenerTensionUpdate,
         LightManager.switchLightModule,
-        GotTmListener
+        GotTmListener,
+        AcceleroMonitoring.OnShakeDetected
 {
 
     private final static boolean SIMULATE_BOARD = true;
@@ -97,6 +99,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
     private final static String TAG = "ArduinoCommunicatorActivity";
     private final static boolean DEBUG = false;
+
+    private AcceleroMonitoring acceleroMonitor;
 
     private void findDevice() {
         UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -169,6 +173,9 @@ public class ArduinoCommunicatorActivity extends Activity implements
         dlgConsoleTM = null;
 
         if (DEBUG) Log.d(TAG, "onCreate()");
+
+        acceleroMonitor = new AcceleroMonitoring(getBaseContext());
+        acceleroMonitor.setShakeListener(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(ArduinoCommunicatorService.DATA_RECEIVED_INTENT);
@@ -514,4 +521,14 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
     }
 
+    @Override
+    public void WakeDisplay() {
+        // wakes up the display
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (!pm.isScreenOn())
+        {
+            PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
+            wakeLock.acquire();
+        }
+    }
 }
