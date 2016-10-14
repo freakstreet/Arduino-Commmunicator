@@ -227,22 +227,28 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
     private void swowTmConsoleDialog()
     {
-        dlgConsoleTM = new DialogTelemetryView(this);
-        tmListener = dlgConsoleTM;
-        dlgConsoleTM.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                tmListener = null;
-                dlgConsoleTM = null;
-            }
-        });
+        if (dlgConsoleTM == null) {
 
-        dlgConsoleTM.setColdManager(managerCold);
-        dlgConsoleTM.setElectricalManager(managerElectrical);
-        dlgConsoleTM.setHeatManager(managerHeat);
-        dlgConsoleTM.setLightManager(managerLights);
-        dlgConsoleTM.setTemperatureManager(managerTemp);
-        dlgConsoleTM.setWaterManager(managerWater);
+            dlgConsoleTM = new DialogTelemetryView(this);
+            tmListener = dlgConsoleTM;
+
+            dlgConsoleTM.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    if (!dlgConsoleTM.keepAlive()) {
+                        tmListener = null;
+                        dlgConsoleTM = null;
+                    }
+                }
+            });
+
+            dlgConsoleTM.setColdManager(managerCold);
+            dlgConsoleTM.setElectricalManager(managerElectrical);
+            dlgConsoleTM.setHeatManager(managerHeat);
+            dlgConsoleTM.setLightManager(managerLights);
+            dlgConsoleTM.setTemperatureManager(managerTemp);
+            dlgConsoleTM.setWaterManager(managerWater);
+        }
 
         dlgConsoleTM.showDialog();
     }
@@ -412,6 +418,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
         switch (tm[0])
         {
+            case CampDuinoProtocol.TM_MIRROR_TC:
+                break;
             case CampDuinoProtocol.TM_LIGHT :
                 managerLights.updateFromTM(tm);
                 break;
