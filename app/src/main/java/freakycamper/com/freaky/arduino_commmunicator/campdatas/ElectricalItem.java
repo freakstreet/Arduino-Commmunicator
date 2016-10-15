@@ -9,8 +9,8 @@ public class ElectricalItem {
     public static char  PROT_RELAYS_COUNT   = 6;
 
     public static String[] currentNames = {"Eau", "Frigo", "Aux", "Chauffage", "Spare", "Lumière", "unknown"};
-    public static String[] tensionNames = {"Aux", "Prim", "Niveau eau"};
     public static String[] relayNames = {"Eau", "Frigo", "Aux", "Chauffage", "Spare", "Lumière"};
+    public static String[] tensionNames = {"Prim", "Aux", "Niveau eau"};
 
     public enum eRelayType{
         R_WATER     ((char)0),
