@@ -117,24 +117,27 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
     public String getStringFromTm(char[] tm)
     {
         String str = "";
+        float tmp[];
 
         switch (tm[0])
         {
             case CampDuinoProtocol.TM_CURRENT:
                 str += "Currents:";
-                for (int i=0;i<_currents.length; i++)
+                tmp = CampDuinoProtocol.decodeFloatOnlyTm(tm);
+                for (int i=0;i<tmp.length; i++)
                 {
-                    str += ElectricalItem.currentNames[i] + " " + Float.toString(_currents[i]) + "A";
-                    if (i < _currents.length-1)
+                    str += ElectricalItem.currentNames[i] + " " + Float.toString(tmp[i]) + "A";
+                    if (i < tmp.length-1)
                         str += " - ";
                 }
                 break;
             case CampDuinoProtocol.TM_TENSION:
                 str += "Tensions:";
-                for (int i=0;i<_tensions.length; i++)
+                tmp = CampDuinoProtocol.decodeFloatOnlyTm(tm);
+                for (int i=0;i<tmp.length; i++)
                 {
-                    str += ElectricalItem.tensionNames[i] + " " + Float.toString(_tensions[i]) + "V";
-                    if (i < _tensions.length-1)
+                    str += ElectricalItem.tensionNames[i] + " " + Float.toString(tmp[i]) + "V";
+                    if (i < tmp.length-1)
                         str += " - ";
                 }
                 break;
