@@ -70,7 +70,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
         AcceleroMonitoring.OnShakeDetected
 {
 
-    private final static boolean SIMULATE_BOARD = true;
+    private final static boolean SIMULATE_BOARD = false;
 
     private static final int ARDUINO_USB_VENDOR_ID = 0x2341;
     private static final int ARDUINO_UNO_USB_PRODUCT_ID = 0x01;
@@ -426,6 +426,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
         switch (tm[0])
         {
             case CampDuinoProtocol.TM_MIRROR_TC:
+                if (tmListener != null)
+                    tmListener.onReceivedRawTM(tm);
                 break;
             case CampDuinoProtocol.TM_LIGHT :
                 managerLights.updateFromTM(tm);
