@@ -29,8 +29,6 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
         return ret;
     }
 
-    DialogFridge _dialog = null;
-
     public ColdManager(Context context, SendTcListener listener, ElectricalManager elecTm, TemperatureManager tempTm, SQLDatasHelper database ) {
         super(listener);
 
@@ -57,15 +55,14 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
     }
 
     public void showDialog(Context context){
-        _dialog = new DialogFridge(context, this);
-        _dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+        correspondingDialog  = new DialogFridge(context, this);
+        correspondingDialog .setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                removeDialog();
+                correspondingDialog  = null;
             }
         });
-        setDialog(_dialog);
-        _dialog.show();
+        correspondingDialog.show();
     }
 
     public float getTempConsigne(){
@@ -87,8 +84,8 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
     @Override
     public void relayModuleUpdated() {
         _relayColdStatus = _elecManager.getRelayStatus(ElectricalItem.eRelayType.R_COLD);
-        if (_dialog != null) {
-            _dialog.updateSwitchColdStatus(_relayColdStatus);
+        if (correspondingDialog  != null) {
+            ((DialogFridge)correspondingDialog).updateSwitchColdStatus(_relayColdStatus);
         }
     }
 
@@ -107,6 +104,6 @@ public class ColdManager extends MainManager implements TemperatureManager.OnTem
     @Override public void updateDialog()
     {
         relayModuleUpdated();
-        _dialog.updateGui();
+        ((DialogFridge)correspondingDialog).updateGui();
     }
 }
