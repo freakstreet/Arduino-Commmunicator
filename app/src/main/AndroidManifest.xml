@@ -14,7 +14,7 @@
             android:name=".ArduinoCommunicatorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/activity_name"
-            android:theme="@style/FullscreenTheme"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:launchMode="singleTask" >
 
             <intent-filter>
