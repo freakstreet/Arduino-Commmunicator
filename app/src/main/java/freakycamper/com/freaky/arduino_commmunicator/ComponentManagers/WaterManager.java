@@ -146,6 +146,15 @@ public class WaterManager extends MainManager implements
     private void updateTankLevel(int level){
         _tankLevel = level;
         _guiGauge.set_percentFill(_tankLevel);
+
+        String str = String.valueOf(getWaterFlow())+ "l/m";
+        if (isGrayWaterFull())
+        {
+            str = "DARK WATER FULL";
+        }
+
+        _guiGauge.setLegend(str);
+
         if (_tankLevel < TANK_LEVEL_TRESHOLD){
             // affichage persistant d'une notification avec le niveau restant
 
@@ -190,7 +199,7 @@ public class WaterManager extends MainManager implements
         return false;
     }
 
-    public boolean getIsWaterFunctionActivated(){
+    public boolean isPumpActive(){
         return _elecManager.getRelayStatus(ElectricalItem.eRelayType.R_WATER);
     }
 
@@ -212,5 +221,14 @@ public class WaterManager extends MainManager implements
     public boolean isGrayWaterFull()
     {
         return _isGreyWaterFull;
+    }
+
+    public boolean isTapOpened(){
+        return _evierOpened;
+    }
+
+    public boolean isShowerOpened()
+    {
+        return _showerOpened;
     }
 }
