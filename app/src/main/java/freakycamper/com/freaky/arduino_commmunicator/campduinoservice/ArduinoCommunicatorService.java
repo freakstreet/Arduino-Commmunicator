@@ -257,12 +257,12 @@ public class ArduinoCommunicatorService extends Service {
                     if (DEBUG) Log.d(TAG, "calling bulkTransfer() in");
                     final int len = mUsbConnection.bulkTransfer(mInUsbEndpoint, inBuffer, inBuffer.length, 0);
 
-                    char[] dbg = new char[len];
-                    for (int i=0; i<len; i++) dbg[i] = (char)inBuffer[i];
-                       Log.d(TAG, "TM: " + CampDuinoProtocol.charArraytoString(dbg));
-
                     if (len > 0) {
-                        char[] cBuffer = new char[len];
+ /*                       char[] dbg = new char[len];
+                        for (int i=0; i<len; i++) dbg[i] = (char)inBuffer[i];
+                           Log.d(TAG, "TM: " + CampDuinoProtocol.charArraytoString(dbg));
+*/
+
                         for (int i=0; i<len; i++)
                             rxBuffer.add(CampDuinoProtocol.decodeSignedByte(inBuffer[i]));
                         gotUsbData();
