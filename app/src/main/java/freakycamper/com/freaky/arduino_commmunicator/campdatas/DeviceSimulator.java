@@ -57,7 +57,7 @@ public class DeviceSimulator {
         char pos=0;
         Random r = new Random();
 
-        switch (counter++ % 4)
+        switch (counter++ % 5)
         {
             case 0 :    // generate random Tensions
                 tm = new char[7];
@@ -145,6 +145,28 @@ public class DeviceSimulator {
                 tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_SPARE)?(char)1:0);
                 tm[pos++] = (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)?(char)1:0);
                 generateTM(tm);
+                break;
+
+            case 4 :    // generate water TM
+                tm = new char[8];
+                tm[pos++] = CampDuinoProtocol.TM_WATER;
+                // is pump active ?
+                if (managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER))
+                {
+                    tm[pos++] = (char)(100*r.nextFloat() >= 50?1:0);
+                }
+                else
+                    tm[pos++] = 0;
+
+                tm[pos++] = (char)Math.round(100*r.nextFloat()); // tank level
+                tm[pos++] = (char)(100*r.nextFloat() >= 50?1:0);    // grey water tank full
+                tmp = CampDuinoProtocol.encodeFloatToTm(16*r.nextFloat());  // water flow
+                tm[pos++] = tmp[0];
+                tm[pos++] = tmp[1];
+                tm[pos++] = (char)(100*r.nextFloat() >= 50?1:0);    // evier openedl
+                tm[pos++] = (char)(100*r.nextFloat() >= 50?1:0);    // shower opened
+                generateTM(tm);
+                break;
 
         }
     }
