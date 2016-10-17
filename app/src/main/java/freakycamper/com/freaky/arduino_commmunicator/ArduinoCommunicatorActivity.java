@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
@@ -70,7 +71,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
         AcceleroMonitoring.OnShakeDetected
 {
 
-    private final static boolean SIMULATE_BOARD = false;
+    private final static String DEVICE_NAME = "Android SDK built for x86";
 
     private static final int ARDUINO_USB_VENDOR_ID = 0x2341;
     private static final int ARDUINO_UNO_USB_PRODUCT_ID = 0x01;
@@ -90,6 +91,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
     private TemperatureManager managerTemp;
     private HeatManager managerHeat;
 
+    private boolean use_simulator = false;
     private DeviceSimulator simulator = null;
 
     private UIUpdater mUIUpdater;
@@ -192,7 +194,9 @@ public class ArduinoCommunicatorActivity extends Activity implements
             }
         });
 
-        if (SIMULATE_BOARD){
+        if (Build.MODEL.compareTo(DEVICE_NAME) == 0)
+        {
+            use_simulator = true;
             Toast.makeText(getBaseContext(), getString(R.string.simulation_mode), Toast.LENGTH_LONG).show();
             simulator = new DeviceSimulator(this);
             onServiceConnected();
@@ -221,7 +225,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
 
     @Override
     public void sendTC(char[] data) {
-        if (!SIMULATE_BOARD) {
+        if (!use_simulator) {
             Intent tx = new Intent(ArduinoCommunicatorService.SEND_DATA_INTENT);
             tx.putExtra(ArduinoCommunicatorService.DATA_EXTRA, data);
             //Toast.makeText(getBaseContext(), "send tc", Toast.LENGTH_LONG).show();
