@@ -15,7 +15,6 @@ import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogLights;
 public class LightManager extends MainManager {
 
     ArrayList<LightItem> _lLights;
-    DialogLights _dialog = null;
 
     public interface switchLightModule {
         public boolean functionSwitch();
@@ -90,15 +89,14 @@ public class LightManager extends MainManager {
     }
 
     public void showDialog(Context context){
-        _dialog = new DialogLights(context, this);
-        _dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+        correspondingDialog = new DialogLights(context, this);
+        correspondingDialog .setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                removeDialog();
+                correspondingDialog  = null;
             }
         });
-        setDialog(_dialog);
-        _dialog.show();
+        correspondingDialog.show();
     }
 
     @Override public void updateDialog()
@@ -107,7 +105,7 @@ public class LightManager extends MainManager {
     }
 
     private void updateGui(){
-        _dialog.updateGui(this);
+        ((DialogLights)correspondingDialog).updateGui(this);
     }
 
     public boolean switchModuleActivation(){
