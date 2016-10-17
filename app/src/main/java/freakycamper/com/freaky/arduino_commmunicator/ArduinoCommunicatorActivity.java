@@ -516,12 +516,14 @@ public class ArduinoCommunicatorActivity extends Activity implements
         else if (managerCold.isDisplayingDialog()) managerCold.updateDialog();
         else if (managerHeat.isDisplayingDialog()) managerHeat.updateDialog();
         else if (managerLights.isDisplayingDialog()) managerLights.updateDialog();
+        else if (managerWater.isDisplayingDialog()) managerWater.updateDialog();
         else if (dlgConsoleTM != null)
             dlgConsoleTM.refresh();
         else {
             String formattedDate = df.format(new Date());
             textTime.setText(formattedDate);
             gaugeBattery.invalidate();
+            gaugeWater.invalidate();
             relayModuleUpdated();
         }
 
@@ -537,4 +539,6 @@ public class ArduinoCommunicatorActivity extends Activity implements
             wakeLock.acquire();
         }
     }
+
 }
+
