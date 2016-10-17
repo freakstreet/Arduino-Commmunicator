@@ -157,24 +157,7 @@ public class CampDuinoProtocol {
         }
         return ret;
     }
-/*
-    public static float[] decodeTempOnlyTm(char[] tm) {
-        float[] temps = new float[tm.length-1];
-        for (int i = 0; i < temps.length; i++)
-            temps[i] = CampDuinoProtocol.decodeTempFromChar(tm[i + 1]);
-        return temps;
-    }
 
-    public static char encodeTempToChar(float temp){
-        int t = (Math.round(temp)*2);
-        char ret = (char)(t+128) ;
-        return ret;
-    }
-
-    public static float decodeTempFromChar(char value){
-        return (value-128)/2;
-    }
-    */
     public static String charArraytoString(char[] data){
         char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[data.length * 5];
