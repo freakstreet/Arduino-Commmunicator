@@ -37,16 +37,6 @@ public class MainManager {
         return str + "\n";
     }
 
-    protected void setDialog(Dialog dlg)
-    {
-        correspondingDialog = dlg;
-    }
-
-    protected void removeDialog()
-    {
-        correspondingDialog = null;
-    }
-
     public boolean isDisplayingDialog()
     {
         return correspondingDialog != null;
