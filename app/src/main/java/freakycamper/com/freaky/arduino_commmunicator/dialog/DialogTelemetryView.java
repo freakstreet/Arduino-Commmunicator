@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -40,12 +42,19 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
     public DialogTelemetryView(Context context) {
         super(context, android.R.style.Theme_Holo_Dialog);
 
-
         this.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
         this.setContentView(R.layout.layout_tm_console );
         tv = (TextView)findViewById(R.id.txtTMTC);
         tbScrool = (ToggleButton)findViewById(R.id.btAutoScrool);
         tbRawFormat = (ToggleButton)findViewById(R.id.btDecodeTm);
+
+        Button bt = (Button)findViewById(R.id.bt_TMTC_dialog_Clear);
+        bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tv.setText("");
+            }
+        });
 
         tv.setMovementMethod(new ScrollingMovementMethod());
     }

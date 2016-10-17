@@ -49,6 +49,13 @@
             android:checked="true"
             android:textOff="@string/DTM_no_decode"
             android:textOn="@string/DTM_decode" />
+
+        <Button
+            android:text="Clear console"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bt_TMTC_dialog_Clear"
+            android:textSize="14sp" />
     </LinearLayout>
 
 </LinearLayout>
