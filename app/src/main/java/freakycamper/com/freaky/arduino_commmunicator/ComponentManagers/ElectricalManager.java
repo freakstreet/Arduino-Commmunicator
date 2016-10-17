@@ -20,7 +20,6 @@ import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogElectrical;
  */
 public class ElectricalManager extends MainManager implements WaterItem.ToggleSwitchWaterPumpRelay {
 
-    DialogElectrical _dialog = null;
     LightManager.switchLightModule listenerSwitchLightModule;
 
     static public ElectricalManager initialiseElectricalManager(ArduinoCommunicatorActivity mainActivity) {
@@ -207,16 +206,15 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
     }
 
     public void showDialog(Context context, boolean lightModuleActivated){
-        _dialog = new DialogElectrical(context, this);
-        addRelayModuleListener(_dialog);
-        _dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+        correspondingDialog = new DialogElectrical(context, this);
+        addRelayModuleListener((DialogElectrical)correspondingDialog);
+        correspondingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                removeDialog();
+                correspondingDialog = null;
             }
         });
-        setDialog(_dialog);
-        _dialog.show();
+        correspondingDialog.show();
     }
 
     public void switchLightningFunction(){
@@ -225,7 +223,7 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
 
     @Override public void updateDialog()
     {
-        _dialog.relayModuleUpdated();
+        ((DialogElectrical)correspondingDialog).relayModuleUpdated();
     }
 
 }
