@@ -1,5 +1,7 @@
 package freakycamper.com.freaky.arduino_commmunicator.ComponentManagers;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.ToggleButton;
@@ -9,19 +11,23 @@ import freakycamper.com.freaky.arduino_commmunicator.campdatas.CurrentItem;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.ElectricalItem;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.SQLDatasHelper;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.WaterItem;
+import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogElectrical;
 import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogWater;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyGauge;
 import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoProtocol;
 import com.google.common.collect.EvictingQueue;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.R.id.list;
 
 /**
  * Created by lsa on 08/12/14.
  */
 public class WaterManager extends MainManager implements
         ElectricalManager.ListenerCurrentUpdate,
-        WaterItem.ToggleSwitchWaterPumpRelay,
-        View.OnLongClickListener,
-        View.OnClickListener
+        WaterItem.ToggleSwitchWaterPumpRelay
 {
 
     private static int TANK_LEVEL_TRESHOLD = 15;
@@ -38,15 +44,22 @@ public class WaterManager extends MainManager implements
 
     FreakyGauge _guiGauge           = null;
     ElectricalManager _elecManager  = null;
-    DialogWater _dialog             = null;
+
+    private ArrayList<ListenerWaterUpdate> listenersWaterUpdate = null;
+
+    public interface ListenerWaterUpdate {
+        public void waterUpdated();
+    }
 
 
     static public WaterManager initialiseWaterManager(MainManager.SendTcListener listener, ElectricalManager manager, SQLDatasHelper database) {
         return new WaterManager(listener, manager, database);
     }
 
-      public WaterManager(SendTcListener listener, ElectricalManager manager, SQLDatasHelper database){
+     public WaterManager(SendTcListener listener, ElectricalManager manager, SQLDatasHelper database){
         super(listener);
+
+          listenersWaterUpdate = new ArrayList<ListenerWaterUpdate>();
         _elecManager = manager;
         _waterLevelArray = database.retrieveLastLoggedWaterLevels();
     }
@@ -56,8 +69,12 @@ public class WaterManager extends MainManager implements
         _guiGauge.addIcon(R.drawable.icon_water);
         _guiGauge.addIcon(R.drawable.icon_no_water);
         _guiGauge.setIconIdx(1);
-        _guiGauge.setOnClickListener(this);
-        _guiGauge.setOnLongClickListener(this);
+        _guiGauge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog(v.getContext());
+            }
+        });
     }
 
     @Override
@@ -72,10 +89,35 @@ public class WaterManager extends MainManager implements
         updateGreyWater(tm[3] == 1);
 
         _flowPrincipal = tm[4];
-        _evierOpened = tm[5] == 1;
-        _showerOpened = tm[6] == 1;
+        _evierOpened = tm[6] == 1;
+        _showerOpened = tm[7] == 1;
 
-        updateGui();
+        for (int i=0; i<listenersWaterUpdate.size(); i++) {
+            listenersWaterUpdate.get(i).waterUpdated();
+        }
+
+    }
+
+    public void addListenerWaterUpdate(ListenerWaterUpdate listener)
+    {
+        listenersWaterUpdate.add(listener);
+    }
+
+    public void removeListenerWaterUpdate(ListenerWaterUpdate listener)
+    {
+        listenersWaterUpdate.remove(listener);
+    }
+
+    @Override
+    public String getStringFromTm(char[] tm)
+    {
+        String str = "";
+        float tmp[];
+
+        str += "Water: " + (tm[1] == 1?"pumping":"idle") + ", tank level: " + String.valueOf((byte)tm[2]) + ", grey water " + (tm[3] == 1?"OK":"FULL");
+
+
+        return str;
     }
 
 
@@ -115,18 +157,10 @@ public class WaterManager extends MainManager implements
         }
     }
 
-    private void updateGui(){
-        _guiGauge.invalidate();
-        if (_dialog != null){
-
-        }
-    }
-
     @Override
     public void currentUpdated(float[] currentList) {
         CurrentItem.eCurrentType eCurrentWater = CurrentItem.eCurrentType.I_WATER;
         _consoPump = currentList[eCurrentWater.value];
-        updateGui();
     }
 
 
@@ -134,54 +168,49 @@ public class WaterManager extends MainManager implements
         return _waterLevelArray;
     }
 
+    @Override public void updateDialog()
+    {
+        ((DialogWater)correspondingDialog).updateDialog();
+    }
 
     @Override
     public void actionToggleSwitchPumpRelay(boolean newStatus) {
 
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        if (_dialog == null){
-            _dialog = new DialogWater(v.getContext(), this);
-        }
-        _dialog.show();
+    public boolean showDialog(Context context){
+        correspondingDialog = new DialogWater(context, this);
+        correspondingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                correspondingDialog = null;
+            }
+        });
+        correspondingDialog.show();
         return false;
-    }
-
-    @Override
-    public void onClick(View v) {
-        boolean status = false;
-        boolean sendTc = false;
-
-        if (v instanceof Switch){
-            Switch bt = (Switch) v;
-            status = bt.isChecked();
-            // the status must be updated from Tm reception
-            bt.setChecked(!status);
-            sendTc = true;
-        }
-        else if (v instanceof ToggleButton){
-            ToggleButton bt = (ToggleButton) v;
-            status = bt.isChecked();
-            // the status must be updated from Tm reception
-            bt.setChecked(!status);
-            sendTc = true;
-        }
-        else if(v instanceof FreakyGauge){
-            FreakyGauge fg = (FreakyGauge) v;
-            status = !(fg.getIconIdx() == 0);
-            sendTc = true;
-        }
-        if (sendTc)
-            sendTc(CampDuinoProtocol.buildSwitchRelayTC(CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_WATER_MODULE, status));
-    }
-
-    public boolean getIsGreyWaterFull(){
-        return _isGreyWaterFull;
     }
 
     public boolean getIsWaterFunctionActivated(){
         return _elecManager.getRelayStatus(ElectricalItem.eRelayType.R_WATER);
+    }
+
+    public int getTankLevel()
+    {
+        return _tankLevel;
+    }
+
+    public float getWaterFlow()
+    {
+        return _flowPrincipal;
+    }
+
+    public float getConsoPump()
+    {
+        return _consoPump;
+    }
+
+    public boolean isGrayWaterFull()
+    {
+        return _isGreyWaterFull;
     }
 }
