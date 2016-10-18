@@ -276,7 +276,6 @@ public class ArduinoCommunicatorActivity extends Activity implements
         managerHeat = HeatManager.initialiseHeatManager(this, this, managerTemp);
         managerElectrical.addRelayModuleListener(this);
         managerWater.setGauge((FreakyGauge)findViewById(R.id.gaugeWater));
-        managerLights.updateFromTM(new char[]{CampDuinoProtocol.TM_LIGHT, 0, LightItem.eLightTypes.NORMAL_ON_OFF.value, 0, 0, 0, 0});
 
         managerElectrical.setListenerSwitchLightModule(this);
 
