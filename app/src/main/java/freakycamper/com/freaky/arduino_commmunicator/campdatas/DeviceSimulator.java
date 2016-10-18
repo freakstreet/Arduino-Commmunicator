@@ -49,6 +49,10 @@ public class DeviceSimulator {
 
         timer = new Timer();
         timer.scheduleAtFixedRate(timerTask, 0, 1000);
+
+        generateTM(new char[]{CampDuinoProtocol.TM_LIGHT, 0, LightItem.eLightTypes.NORMAL_ON_OFF.value, 0, 0, 0, 0});
+        generateTM(new char[]{CampDuinoProtocol.TM_LIGHT, 1, LightItem.eLightTypes.RGB_DIMMER.value, 0, 0, 0, 0});
+        generateTM(new char[]{CampDuinoProtocol.TM_LIGHT, 2, LightItem.eLightTypes.DIMMER.value, 0, 0, 0, 0});
     }
 
     private void generateTm()
@@ -57,7 +61,7 @@ public class DeviceSimulator {
         char pos=0;
         Random r = new Random();
 
-        switch (counter++ % 5)
+        switch (counter++ % 6)
         {
             case 0 :    // generate random Tensions
                 tm = new char[7];
@@ -168,6 +172,9 @@ public class DeviceSimulator {
                 generateTM(tm);
                 break;
 
+            case 5 :    // generate light TM
+                break;
+
         }
 
         tm = new char[3];
@@ -205,14 +212,25 @@ public class DeviceSimulator {
 
     public void simulateFromTC(char[] tc){
         if (tc[0]== CampDuinoProtocol.PROT_TC_LIGHT){
-            char[] tm = new char[7];
-            tm[0] = CampDuinoProtocol.TM_LIGHT;
-            tm[1] = tc[1];
-            tm[2] = managerLights.getLight(tm[1]).getLightType().value;
-            tm[3] = tc[2];
-            tm[4] = tc[3];
-            tm[5] = tc[4];
-            tm[6] = tc[5];
+            char[] tm;
+            if (managerLights.getLight(tc[1]).getLightType() == LightItem.eLightTypes.RGB_DIMMER) {
+
+                tm = new char[6];
+                tm[0] = CampDuinoProtocol.TM_LIGHT;
+                tm[1] = tc[1];
+                tm[2] = managerLights.getLight(tc[1]).getLightType().value;
+                tm[3] = tc[2];
+                tm[4] = tc[3];
+                tm[5] = tc[4];
+            }
+            else
+            {
+                tm = new char[4];
+                tm[0] = CampDuinoProtocol.TM_LIGHT;
+                tm[1] = tc[1];
+                tm[2] = managerLights.getLight(tc[1]).getLightType().value;
+                tm[3] = tc[2];
+            }
             generateTM(tm);
         }
         else if (tc[0]== CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_WATER_MODULE.value){
