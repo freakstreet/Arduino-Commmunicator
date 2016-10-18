@@ -41,11 +41,18 @@ public class LightItem {
         return _id;
     }
 
-    public void updateLightStatus(char dimm, char r, char g, char b){
-        _dimm = dimm;
+    public void updateLightRGBStatus(char r, char g, char b){
         _r = r;
         _g = g;
         _b = b;
+    };
+
+    public void updateLightDimmStatus(char dimm){
+        _dimm = dimm;
+    };
+
+    public void updateLightSwitchStatus(boolean isOn){
+        _dimm = (char)(isOn?255:0);
     };
 
     public boolean getIsOn(){
