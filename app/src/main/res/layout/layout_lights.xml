@@ -10,7 +10,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <ToggleButton
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:text="Test"
@@ -21,7 +22,8 @@
             android:enabled="true"
             android:clickable="true" />
 
-        <ToggleButton
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:text="New ToggleButton"
@@ -32,7 +34,8 @@
             android:enabled="true"
             android:clickable="true" />
 
-        <ToggleButton
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:text="New ToggleButton"
@@ -52,7 +55,8 @@
         android:layout_gravity="bottom"
         android:layout_weight="1">
 
-        <ToggleButton
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:text="New ToggleButton"
@@ -63,7 +67,8 @@
             android:enabled="true"
             android:clickable="true" />
 
-        <ToggleButton
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:text="New ToggleButton"
@@ -74,7 +79,8 @@
             android:enabled="true"
             android:clickable="true" />
 
-        <ToggleButton
+        <view
+            class="freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:text="New ToggleButton"
