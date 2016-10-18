@@ -28,7 +28,7 @@ public class DeviceSimulator {
     private ColdManager managerCold = null;
     private WaterManager managerWater = null;
 
-    int counter = 0;
+    short counter = 0;
 
     public DeviceSimulator(GotTmListener listener)
     {
@@ -169,6 +169,12 @@ public class DeviceSimulator {
                 break;
 
         }
+
+        tm = new char[3];
+        tm[0] = CampDuinoProtocol.TM_IS_ALIVE;
+        tm[1] = (char) (counter >>> 8);
+        tm[2] = (char) counter;
+        generateTM(tm);
     }
 
     public void setElectricalManager(ElectricalManager mgr)
