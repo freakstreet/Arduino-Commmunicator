@@ -41,7 +41,7 @@ public class CampDuinoProtocol {
     public static char PROT_TC_HEATER           = 40;
 
     // TELEMETRY
-    // TELEMETRY
+    public static final char	TM_IS_ALIVE 	    = 9;
     public static final char	TM_MIRROR_TC	    = 10;
     public static final char	TM_CURRENT		    = 70;
     public static final char	TM_TENSION		    = 71;
@@ -200,6 +200,12 @@ public class CampDuinoProtocol {
         for (int i=0;i<data.length; i++)
             chs[i] = (char)data[i];
         return getCharArrayValsHexString(chs);
+    }
+
+    public static String getStringFromTmAlive(char[] tm)
+    {
+        int val = (tm[1] << 8) + tm[2];
+        return "TM alive, cnt: " + val;
     }
 
 }
