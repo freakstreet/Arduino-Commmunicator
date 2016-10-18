@@ -56,6 +56,76 @@
             android:layout_height="wrap_content"
             android:id="@+id/bt_TMTC_dialog_Clear"
             android:textSize="14sp" />
+
+        <CheckBox
+            android:text="0x09 : Alive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Alive"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x0A : Mirror"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Mirror"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x46 : Current"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Current"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x47 - Tensions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Tension"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x48 : Temps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Temps"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x49 : Water"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Water"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x4A : Relays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Relays"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x4B : Lights"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Lights"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x4C : Cold, Hot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_Cold_Hot"
+            android:checked="true" />
+
+        <CheckBox
+            android:text="0x4D : Elec conf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cb_tm_ElecConf"
+            android:checked="true" />
     </LinearLayout>
 
 </LinearLayout>
