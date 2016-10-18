@@ -1,6 +1,7 @@
 package freakycamper.com.freaky.arduino_commmunicator.dialog;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.widget.ToggleButton;
 
@@ -12,20 +13,25 @@ import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.MainManag
 import freakycamper.com.freaky.arduino_commmunicator.R;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.LightItem;
 import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoProtocol;
+import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggleButton;
 
 /**
  * Created by lsa on 01/10/14.
  */
-public class DialogLights extends DialogPopUpDelayed{
+public class DialogLights extends DialogPopUpDelayed implements
+        FreakyLightLedRgbToggleButton.OnLightItemChangeAsked
+{
 
     ArrayList<View> buttonsList;
-    MainManager.SendTcListener _onSendTc;
+    LightManager manager;
 
-    public DialogLights(Context context, LightManager manager) {
+    public DialogLights(Context context, LightManager managerLight) {
         super(context, "Lights", R.layout.layout_lights, android.R.style.Theme_DeviceDefault);
 
+        this.manager = managerLight;
+
         setDimensions(700, 380);
-        _onSendTc = manager.getSendTcListener();
+        //_onSendTc = manager.getSendTcListener();
 
         buttonsList = new ArrayList<View>();
 
@@ -45,35 +51,75 @@ public class DialogLights extends DialogPopUpDelayed{
                     ToggleButton bt = (ToggleButton)v;
                     boolean status = bt.isChecked();
                     int idx = buttonsList.indexOf(v);
-                    _onSendTc.sendTC(CampDuinoProtocol.buildSwitchLightTC(idx, (status ? 55 : 0), 255, 255, 255));
+                    manager.getSendTcListener().sendTC(CampDuinoProtocol.buildSwitchLightTC(idx, (status ? 55 : 0), 255, 255, 255));
                 }
             });
         }
 
-        int nbButtons = Math.min(manager.getLightCount(), buttonsList.size());
+        for (int i=0; i<manager.getLightCount(); i++)
+        {
+            FreakyLightLedRgbToggleButton bt = (FreakyLightLedRgbToggleButton)buttonsList.get(i);
+            bt.connectToLightItem(manager.getLight(i));
+            bt.setListener(this);
 
-        for (int i=0; i<nbButtons; i++){
-            ToggleButton b = (ToggleButton)buttonsList.get(i);
-            LightItem l = manager.getLight(i);
-            boolean status = l.getIsOn();
-            b.setChecked(status);
+            switch(i)
+            {
+                case 0 :
+                    bt.setText(R.string.light_name_1);
+                    break;
+                case 1 :
+                    bt.setText(R.string.light_name_2);
+                    break;
+                case 2 :
+                    bt.setText(R.string.light_name_3);
+                    break;
+                default :
+                    bt.setText("unknown");
+                    break;
+            }
+
+
         }
+
+        int nbButtons = Math.min(manager.getLightCount(), buttonsList.size());
 
     }
 
-   public void updateGui(LightManager manager){
-       for(int i=0; i<buttonsList.size(); i++){
+   public void updateGui(LightManager manager)
+   {
+       for(int i=0; i<buttonsList.size(); i++)
+       {
            LightItem l = manager.getLight(i);
-           if (l==null) buttonsList.get(i).setEnabled(false);
-           else {
-               if (l.getLightType() == LightItem.eLightTypes.NORMAL_ON_OFF) {
-                   buttonsList.get(i).setEnabled(true);
-                   ToggleButton tbt = (ToggleButton)buttonsList.get(i);
-                   tbt.setChecked(l.getIsOn());
-               }
-               else buttonsList.get(i).setEnabled(false);
-           }
+
        }
    }
 
+    @Override
+    public void updateLightRGB(int rgbColor, int lightId) {
+        manager.getSendTcListener().sendTC(new char[]{
+                CampDuinoProtocol.PROT_TC_LIGHT,
+                (char)lightId,
+                (char)Color.red(rgbColor),
+                (char)Color.green(rgbColor),
+                (char)Color.blue(rgbColor)
+        });
+    }
+
+    @Override
+    public void updateLightDIMM(int dimmVAl, int lightId) {
+        manager.getSendTcListener().sendTC(new char[]{
+                CampDuinoProtocol.PROT_TC_LIGHT,
+                (char)lightId,
+                (char)dimmVAl
+        });
+    }
+
+    @Override
+    public void updateLightSwitch(boolean isOn, int lightId) {
+        manager.getSendTcListener().sendTC(new char[]{
+                CampDuinoProtocol.PROT_TC_LIGHT,
+                (char)lightId,
+                (char)(isOn?255:0)
+        });
+    }
 }
