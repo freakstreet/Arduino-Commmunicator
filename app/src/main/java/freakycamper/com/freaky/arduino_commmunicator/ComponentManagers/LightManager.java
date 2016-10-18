@@ -46,7 +46,18 @@ public class LightManager extends MainManager {
             _lLights.add(l);
         }
 
-        l.updateLightStatus(tm[3], tm[4], tm[5], tm[6]);
+        switch (l.getLightType())
+        {
+            case RGB_DIMMER:
+                l.updateLightRGBStatus(tm[3], tm[4], tm[5]);
+                break;
+            case DIMMER:
+                l.updateLightDimmStatus(tm[3]);
+                break;
+            case NORMAL_ON_OFF:
+                l.updateLightSwitchStatus(tm[3] > 0);
+                break;
+        }
     }
 
     @Override
