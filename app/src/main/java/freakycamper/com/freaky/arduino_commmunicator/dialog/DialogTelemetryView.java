@@ -115,9 +115,42 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
         managerWater = mgr;
     }
 
+    private boolean checkIsTmDisplayingChecked(char tmHeader)
+    {
+        switch (tmHeader)
+        {
+            case CampDuinoProtocol.TM_IS_ALIVE :
+                return ((CheckBox)findViewById(R.id.cb_tm_Alive)).isChecked();
+            case CampDuinoProtocol.TM_MIRROR_TC :
+                return ((CheckBox)findViewById(R.id.cb_tm_Mirror)).isChecked();
+            case CampDuinoProtocol.TM_CURRENT :
+                return ((CheckBox)findViewById(R.id.cb_tm_Current)).isChecked();
+            case CampDuinoProtocol.TM_TENSION :
+                return ((CheckBox)findViewById(R.id.cb_tm_Tension)).isChecked();
+            case CampDuinoProtocol.TM_TEMPERATURE :
+                return ((CheckBox)findViewById(R.id.cb_tm_Temps)).isChecked();
+            case CampDuinoProtocol.TM_WATER :
+                return ((CheckBox)findViewById(R.id.cb_tm_Water)).isChecked();
+            case CampDuinoProtocol.TM_RELAY :
+                return ((CheckBox)findViewById(R.id.cb_tm_Relays)).isChecked();
+            case CampDuinoProtocol.TM_LIGHT :
+                return ((CheckBox)findViewById(R.id.cb_tm_Lights)).isChecked();
+            case CampDuinoProtocol.TM_COLD_HOT :
+                return ((CheckBox)findViewById(R.id.cb_tm_Cold_Hot)).isChecked();
+            case CampDuinoProtocol.TM_ELEC_CONF :
+                return ((CheckBox)findViewById(R.id.cb_tm_ElecConf)).isChecked();
+            default :
+                return true;
+        }
+    }
+
     @Override
     public void onReceivedRawTM(char[] tm) {
+        // skip is TM display not checked in the GUI
+        if (!checkIsTmDisplayingChecked(tm[0]))
+            return;
 
+        // then select the formatter
         if (!tbRawFormat.isChecked())
         {
             for (int i=0; i<tm.length; i++)
@@ -127,25 +160,37 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
         {
             switch (tm[0])
             {
+                case CampDuinoProtocol.TM_IS_ALIVE:
+                    addedText += CampDuinoProtocol.getStringFromTmAlive(tm);
+                    break;
+
+                case CampDuinoProtocol.TM_MIRROR_TC:
+                    break;
+
                 case CampDuinoProtocol.TM_LIGHT :
                     addedText += managerLights.getStringFromTm(tm);
                     break;
+
                 case CampDuinoProtocol.TM_WATER:
                     addedText += managerWater.getStringFromTm(tm);
                     break;
+
                 case CampDuinoProtocol.TM_CURRENT:
                 case CampDuinoProtocol.TM_TENSION:
                 case CampDuinoProtocol.TM_RELAY:
                 case CampDuinoProtocol.TM_ELEC_CONF:
                     addedText += managerElectrical.getStringFromTm(tm);
                     break;
+
                 case CampDuinoProtocol.TM_TEMPERATURE:
                     addedText += managerTemp.getStringFromTm(tm);
                     break;
+
                 case CampDuinoProtocol.TM_COLD_HOT:
                     addedText += managerCold.getStringFromTm(tm);
                     addedText += managerHeat.getStringFromTm(tm);
                     break;
+
                 default :
                     break;
             }
