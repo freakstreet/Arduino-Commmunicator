@@ -67,4 +67,8 @@
     <string name="DTM_decode">Decode TM</string>
     <string name="DTM_no_decode">RAW TM</string>
 
+    <string name="light_name_1">Plafonnier</string>
+    <string name="light_name_2">RGB Ambient</string>
+    <string name="light_name_3">Dimmer white</string>
+
 </resources>
