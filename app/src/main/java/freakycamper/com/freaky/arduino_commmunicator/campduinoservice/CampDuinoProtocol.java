@@ -25,6 +25,7 @@ public class CampDuinoProtocol {
         PROT_SWITCH_COLD_MODULE     ((char)10),
         PROT_SWITCH_WATER_MODULE    ((char)11),
         PROT_SWITCH_HEAT_MODULE     ((char)12),
+        PROT_SWITCH_LIGHT_MODULE    ((char)13),
         PROT_SWITCH_AUX_MODULE      ((char)14),
         PROT_SWITCH_SPARE_MODULE    ((char)15);
 
