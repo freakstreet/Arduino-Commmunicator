@@ -217,10 +217,6 @@ public class ElectricalManager extends MainManager implements WaterItem.ToggleSw
         correspondingDialog.show();
     }
 
-    public void switchLightningFunction(){
-        _relays[ElectricalItem.eRelayType.R_LIGHT.value] = listenerSwitchLightModule.functionSwitch();
-    }
-
     @Override public void updateDialog()
     {
         ((DialogElectrical)correspondingDialog).relayModuleUpdated();
