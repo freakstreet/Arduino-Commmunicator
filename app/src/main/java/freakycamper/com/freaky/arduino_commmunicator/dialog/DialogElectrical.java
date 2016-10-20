@@ -61,8 +61,7 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
             @Override
             public void onClick(View v) {
                 // heater button is only used to show relay status, not direct action outside the heater dialog
-                boolean status = elec.getRelayStatus(ElectricalItem.eRelayType.R_HEATER);
-                elec.getSendTcListener().sendTC(CampDuinoProtocol.buildSwitchRelayTC(CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE, !status));
+                elec.getSendTcListener().sendTC(CampDuinoProtocol.buildSwitchRelayTC(CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_HEAT_MODULE, !elec.getRelayStatus(ElectricalItem.eRelayType.R_HEATER)));
             }
         });
 
@@ -72,7 +71,7 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                elec.switchLightningFunction();
+                elec.getSendTcListener().sendTC(CampDuinoProtocol.buildSwitchRelayTC(CampDuinoProtocol.eProtTcSwitch.PROT_SWITCH_LIGHT_MODULE, !elec.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT)));
             }
         });
 
