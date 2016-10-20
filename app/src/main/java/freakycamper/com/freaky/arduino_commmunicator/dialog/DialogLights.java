@@ -9,7 +9,6 @@ import android.widget.ToggleButton;
 import java.util.ArrayList;
 
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.LightManager;
-import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.MainManager;
 import freakycamper.com.freaky.arduino_commmunicator.R;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.LightItem;
 import freakycamper.com.freaky.arduino_commmunicator.campduinoservice.CampDuinoProtocol;
@@ -26,7 +25,7 @@ public class DialogLights extends DialogPopUpDelayed implements
     LightManager manager;
 
     public DialogLights(Context context, LightManager managerLight) {
-        super(context, "Lights", R.layout.layout_lights, android.R.style.Theme_DeviceDefault);
+        super(context, "Lights", R.layout.layout_lights, android.support.v7.appcompat.R.style.Base_Theme_AppCompat_DialogWhenLarge);
 
         this.manager = managerLight;
 
