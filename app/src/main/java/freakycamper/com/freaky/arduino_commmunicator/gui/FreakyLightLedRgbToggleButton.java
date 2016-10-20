@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
-import freakycamper.com.freaky.arduino_commmunicator.R;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.LightItem;
 import freakycamper.com.freaky.arduino_commmunicator.dialog.DialogPickColor;
 import freakycamper.com.freaky.arduino_commmunicator.gui.FlaskColorPicker.ColorPickerView;
@@ -64,6 +63,7 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
 
             case RGB_DIMMER:
                 this.setBackgroundColor(Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue()));
+                this.setTextColor(Color.rgb(255-Color.red(item.getRedValue()), 255-Color.green(item.getGreenValue()), 255-Color.blue(item.getBlueValue())));
                 break;
 
             case DIMMER:
@@ -78,54 +78,113 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
 
     }
 
+    private void pickDimmValue(){
+        final LightnessPickedDialogBuilder dlg = LightnessPickedDialogBuilder
+                .with(getContext(), android.support.v7.appcompat.R.style.Base_Theme_AppCompat_Dialog)
+                .setTitle("Select light desired dimm value");
 
-    public void pickRGBColor(){
+        dlg.setPositiveButton("OK", new ColorPickerClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                listener.updateLightDIMM(Color.red(selectedColor), item.getId());
+                setBackgroundColor(selectedColor);
+                if (allColors != null) {
+                    StringBuilder sb = null;
 
-        final Context context = getContext();
+                    for (Integer color : allColors) {
+                        if (color == null)
+                            continue;
+                        if (sb == null)
+                            sb = new StringBuilder("Dimm :");
+                        sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
+                    }
 
-        ColorPickerDialogBuilder
-                .with(context, R.style.AppTheme)
+                }
+            }
+        });
+
+        dlg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setBackgroundColor(Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue()));
+                setTextColor(Color.rgb(255-Color.red(item.getRedValue()), 255-Color.green(item.getGreenValue()), 255-Color.blue(item.getBlueValue())));
+            }
+        });
+
+        dlg.setOnColorSelectedListener(new OnColorSelectedListener() {
+            @Override
+            public void onColorSelected(int selectedColor) {
+                setBackgroundColor(selectedColor);
+                setTextColor(Color.rgb(255-Color.red(selectedColor), 255-Color.green(selectedColor), 255-Color.blue(selectedColor)));
+            }
+        });
+
+        int c = Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue());
+        // if actual params is black, then display the white color for suggestion
+        if (c == Color.BLACK)
+        {
+            c = Color.WHITE;
+        }
+        dlg.initialColor(c);
+
+        dlg.build().show();
+    }
+
+    private void pickRGBColor(){
+
+        final ColorPickerDialogBuilder dlg = ColorPickerDialogBuilder
+                .with(getContext(), android.support.v7.appcompat.R.style.Base_Theme_AppCompat_Dialog)
                 .setTitle("Select light desired color")
-                .initialColor(Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue()))
                 .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                .density(12)
+                .density(8)
                 .showColorEdit(false)
-                .showAlphaSlider(false)
-                .setOnColorSelectedListener(new OnColorSelectedListener() {
-                    @Override
-                    public void onColorSelected(int selectedColor) {
-                        setBackgroundColor(selectedColor);
+                .showAlphaSlider(false);
+
+        dlg.setPositiveButton("OK", new ColorPickerClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                listener.updateLightRGB(selectedColor, item.getId());
+                setBackgroundColor(selectedColor);
+                if (allColors != null) {
+                    StringBuilder sb = null;
+
+                    for (Integer color : allColors) {
+                        if (color == null)
+                            continue;
+                        if (sb == null)
+                            sb = new StringBuilder("Color List:");
+                        sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
                     }
-                })
-                .setPositiveButton("ok", new ColorPickerClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
-                        item.updateLightRGBStatus((char)Color.red(selectedColor), (char)Color.green(selectedColor), (char)Color.blue(selectedColor));
-                        setBackgroundColor(selectedColor);
-                        if (allColors != null) {
-                            StringBuilder sb = null;
 
-                            for (Integer color : allColors) {
-                                if (color == null)
-                                    continue;
-                                if (sb == null)
-                                    sb = new StringBuilder("Color List:");
-                                sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
-                            }
+                }
+            }
+        });
 
-                        }
-                    }
-                })
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                //.setColorEditTextColor(ContextCompat.getColor(SampleActivity.this, android.R.color.holo_blue_bright))
-                .build()
-                .show();
+        dlg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    setBackgroundColor(Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue()));
+                    setTextColor(Color.rgb(255-Color.red(item.getRedValue()), 255-Color.green(item.getGreenValue()), 255-Color.blue(item.getBlueValue())));
+                }
+        });
 
+        dlg.setOnColorSelectedListener(new OnColorSelectedListener() {
+                @Override
+                public void onColorSelected(int selectedColor) {
+                    setBackgroundColor(selectedColor);
+                    setTextColor(Color.rgb(255-Color.red(selectedColor), 255-Color.green(selectedColor), 255-Color.blue(selectedColor)));
+                    dlg.setColorEditTextColor(selectedColor);
+                }
+        });
 
+        int c = Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue());
+        // if actual params is black, then display the white color for suggestion
+        if (c == Color.BLACK)
+        {
+            c = Color.WHITE;
+        }
+        dlg.initialColor(c);
+        dlg.build().show();
     }
 
     @Override
@@ -144,11 +203,15 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
                 break;
 
             case DIMMER:
+                pickDimmValue();
                 break;
         }
         return true;
     }
 
+ /*   @Override
+    public boolean
+*/
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
