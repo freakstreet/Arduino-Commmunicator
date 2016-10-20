@@ -46,8 +46,7 @@ public class ColorPickerDialogBuilder {
 		defaultMargin = getDimensionAsPx(context, R.dimen.default_slider_margin);
 		final int dialogMarginBetweenTitle = getDimensionAsPx(context, R.dimen.default_slider_margin_btw_title);
 
-		//builder = new AlertDialog.Builder(context, theme);
-		builder = new AlertDialog.Builder(context, android.support.v7.appcompat.R.style.Base_Theme_AppCompat_Dialog);
+		builder = new AlertDialog.Builder(context, theme);
 		pickerContainer = new LinearLayout(context);
 		pickerContainer.setOrientation(LinearLayout.VERTICAL);
 		pickerContainer.setGravity(Gravity.CENTER_HORIZONTAL);
