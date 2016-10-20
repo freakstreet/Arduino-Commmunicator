@@ -37,9 +37,9 @@ public class CampDuinoProtocol {
     };
 
     public static char PROT_TC_ACTIVATE_BOARD   = 8;
-    public static char PROT_TC_LIGHT            = 13;
     public static char PROT_TC_COLD             = 20;
     public static char PROT_TC_HEATER           = 40;
+    public static char PROT_TC_LIGHT            = 60;
 
     // TELEMETRY
     public static final char	TM_IS_ALIVE 	    = 9;
