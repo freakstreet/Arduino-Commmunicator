@@ -38,7 +38,7 @@ public class ColorPickerDialogBuilder {
 	private int defaultMargin = 0;
 	private Integer[] initialColor = new Integer[]{null, null, null, null, null};
 
-	private ColorPickerDialogBuilder(Context context) {
+	public ColorPickerDialogBuilder(Context context) {
 		this(context, 0);
 	}
 
