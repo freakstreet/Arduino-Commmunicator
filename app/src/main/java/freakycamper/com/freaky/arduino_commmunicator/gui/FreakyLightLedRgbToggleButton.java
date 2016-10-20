@@ -87,46 +87,10 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
             @Override
             public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
                 listener.updateLightDIMM(Color.red(selectedColor), item.getId());
-                setBackgroundColor(selectedColor);
-                if (allColors != null) {
-                    StringBuilder sb = null;
-
-                    for (Integer color : allColors) {
-                        if (color == null)
-                            continue;
-                        if (sb == null)
-                            sb = new StringBuilder("Dimm :");
-                        sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
-                    }
-
-                }
             }
         });
-
-        dlg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                setBackgroundColor(Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue()));
-                setTextColor(Color.rgb(255-Color.red(item.getRedValue()), 255-Color.green(item.getGreenValue()), 255-Color.blue(item.getBlueValue())));
-            }
-        });
-
-        dlg.setOnColorSelectedListener(new OnColorSelectedListener() {
-            @Override
-            public void onColorSelected(int selectedColor) {
-                setBackgroundColor(selectedColor);
-                setTextColor(Color.rgb(255-Color.red(selectedColor), 255-Color.green(selectedColor), 255-Color.blue(selectedColor)));
-            }
-        });
-
-        int c = Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue());
-        // if actual params is black, then display the white color for suggestion
-        if (c == Color.BLACK)
-        {
-            c = Color.WHITE;
-        }
-        dlg.initialColor(c);
-
+        dlg.setNegativeButton("Cancel", null);
+        dlg.initialDimmValue(item.getDimmValue());
         dlg.build().show();
     }
 
@@ -145,18 +109,6 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
             public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
                 listener.updateLightRGB(selectedColor, item.getId());
                 setBackgroundColor(selectedColor);
-                if (allColors != null) {
-                    StringBuilder sb = null;
-
-                    for (Integer color : allColors) {
-                        if (color == null)
-                            continue;
-                        if (sb == null)
-                            sb = new StringBuilder("Color List:");
-                        sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
-                    }
-
-                }
             }
         });
 
@@ -241,7 +193,7 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
                 textPaint.setTypeface(FontUtils.loadFontFromAssets(getContext(), FontUtils.FONT_DOSIS_EXTRA_LIGHT));
                 textPaint.setTextAlign(Paint.Align.CENTER);
                 textPaint.setTextSize(26);
-                canvas.drawText(item.getDimmValue() + " %", 250, 60, textPaint);
+                canvas.drawText(String.valueOf((100*item.getDimmValue())/255) + " %", 250, 60, textPaint);
                 break;
         }
 

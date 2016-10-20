@@ -69,11 +69,6 @@ public class LightnessPickedDialogBuilder {
             return this;
         }
 
-        public LightnessPickedDialogBuilder initialColor(int initialColor) {
-            this.initialColor[0] = initialColor;
-            return this;
-        }
-
         public LightnessPickedDialogBuilder setOnColorSelectedListener(OnColorSelectedListener onColorSelectedListener) {
             colorPickerView.addOnColorSelectedListener(onColorSelectedListener);
             return this;
@@ -92,6 +87,11 @@ public class LightnessPickedDialogBuilder {
         public LightnessPickedDialogBuilder setNegativeButton(CharSequence text, DialogInterface.OnClickListener onClickListener) {
             builder.setNegativeButton(text, onClickListener);
             return this;
+        }
+
+        public void initialDimmValue(int dimmVal)
+        {
+            initialColor[0] = Color.rgb(dimmVal, dimmVal, dimmVal);
         }
 
         public AlertDialog build() {
