@@ -394,13 +394,9 @@ public class ArduinoCommunicatorActivity extends Activity implements
     public void relayModuleUpdated() {
         // Etat switch pompe a eau
         boolean pumpStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_WATER);
-        FreakyGauge g = (FreakyGauge)findViewById(R.id.gaugeWater);
-        g.setIconIdx((pumpStatus?0:1));
-        g.setActiveMode(pumpStatus);
-        if(pumpStatus)
-            g.setLegend(getString(R.string.water_lb_relay_on));
-        else
-            g.setLegend(getString(R.string.water_lb_relay_off));
+        gaugeWater.setIconIdx((pumpStatus?0:1));
+        gaugeWater.setActiveMode(pumpStatus);
+        gaugeWater.invalidate();
 
         // Etat module chauffage
         boolean heatStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_HEATER);
@@ -412,6 +408,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
         boolean lightStatus = managerElectrical.getRelayStatus(ElectricalItem.eRelayType.R_LIGHT);
         fr = (FreakyRow)findViewById(R.id.rawLights);
         fr.setActivationMode(lightStatus);
+        fr.invalidate();
     }
 
     @Override
