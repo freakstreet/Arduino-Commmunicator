@@ -165,6 +165,8 @@ public class DialogTelemetryView extends Dialog implements GotTmListener {
                     break;
 
                 case CampDuinoProtocol.TM_MIRROR_TC:
+                    for (int i=0; i<tm.length; i++)
+                        addedText += "0x" +(tm[i]<= 0xF?"0":"") +  Integer.toHexString(tm[i]).toUpperCase() + " ";
                     break;
 
                 case CampDuinoProtocol.TM_LIGHT :
