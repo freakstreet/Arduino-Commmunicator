@@ -15,7 +15,7 @@
         <TextView
             android:text="Water function"
             android:layout_height="match_parent"
-            android:id="@+id/textView3"
+            android:id="@+id/text_relay_water"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
             android:textSize="30sp"
@@ -34,7 +34,7 @@
         <TextView
             android:text="Light function"
             android:layout_height="match_parent"
-            android:id="@+id/textView4"
+            android:id="@+id/text_relay_light"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
             android:textSize="30sp"
@@ -59,7 +59,7 @@
         <TextView
             android:text="Cold function"
             android:layout_height="match_parent"
-            android:id="@+id/textView5"
+            android:id="@+id/text_relay_cold"
             android:textSize="30sp"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
@@ -78,7 +78,7 @@
         <TextView
             android:text="Hot function"
             android:layout_height="match_parent"
-            android:id="@+id/textView6"
+            android:id="@+id/text_relay_heater"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
             android:textSize="30sp"
@@ -103,7 +103,7 @@
         <TextView
             android:text="Auxiliary function"
             android:layout_height="match_parent"
-            android:id="@+id/textView7"
+            android:id="@+id/text_relay_aux"
             android:fontFamily="sans-serif-thin"
             android:gravity="center"
             android:textSize="30sp"
@@ -123,7 +123,7 @@
             android:text="Spare relay"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:id="@+id/textView2"
+            android:id="@+id/text_relay_spare"
             android:fontFamily="sans-serif-thin"
             android:textSize="30sp"
             android:layout_width="230dp" />
