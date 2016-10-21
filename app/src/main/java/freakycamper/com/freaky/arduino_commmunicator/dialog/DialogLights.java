@@ -18,7 +18,8 @@ import freakycamper.com.freaky.arduino_commmunicator.gui.FreakyLightLedRgbToggle
  * Created by lsa on 01/10/14.
  */
 public class DialogLights extends DialogPopUpDelayed implements
-        FreakyLightLedRgbToggleButton.OnLightItemChangeAsked
+        FreakyLightLedRgbToggleButton.OnLightItemChangeAsked,
+        FreakyLightLedRgbToggleButton.OnDialogACtion
 {
 
     ArrayList<View> buttonsList;
@@ -32,7 +33,7 @@ public class DialogLights extends DialogPopUpDelayed implements
         setDimensions(700, 380);
         //_onSendTc = manager.getSendTcListener();
 
-        buttonsList = new ArrayList<View>();
+        buttonsList = new ArrayList<>();
 
         buttonsList.add(this.findViewById(R.id.light_bt1));
         buttonsList.add(this.findViewById(R.id.light_bt2));
@@ -44,15 +45,7 @@ public class DialogLights extends DialogPopUpDelayed implements
         updateGui(manager);
 
         for (View v : buttonsList) {
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ToggleButton bt = (ToggleButton)v;
-                    boolean status = bt.isChecked();
-                    int idx = buttonsList.indexOf(v);
-                    manager.getSendTcListener().sendTC(CampDuinoProtocol.buildSwitchLightTC(idx, (status ? 55 : 0), 255, 255, 255));
-                }
-            });
+            setMonitoredComponent(v);
         }
 
         for (int i=0; i<manager.getLightCount(); i++)
@@ -60,6 +53,7 @@ public class DialogLights extends DialogPopUpDelayed implements
             FreakyLightLedRgbToggleButton bt = (FreakyLightLedRgbToggleButton)buttonsList.get(i);
             bt.connectToLightItem(manager.getLight(i));
             bt.setListener(this);
+            bt.setDialogListener(this);
 
             switch(i)
             {
@@ -77,11 +71,21 @@ public class DialogLights extends DialogPopUpDelayed implements
                     break;
             }
 
+            LightItem l = manager.getLight(i);
 
+            switch (l.getLightType())
+            {
+                case NORMAL_ON_OFF:
+                    ((FreakyLightLedRgbToggleButton) buttonsList.get(i)).setChecked(l.getIsOn());
+                    break;
+
+                case DIMMER:
+                    break;
+
+                case RGB_DIMMER:
+                    break;
+            }
         }
-
-        int nbButtons = Math.min(manager.getLightCount(), buttonsList.size());
-
     }
 
    public void updateGui(LightManager manager)
@@ -120,5 +124,15 @@ public class DialogLights extends DialogPopUpDelayed implements
                 (char)lightId,
                 (char)(isOn?255:0)
         });
+    }
+
+    @Override
+    public void onOpenedDialog() {
+        blockAutoCloseTimer();
+    }
+
+    @Override
+    public void onDialogClosed() {
+        releaseAutoCloseTimer();
     }
 }
