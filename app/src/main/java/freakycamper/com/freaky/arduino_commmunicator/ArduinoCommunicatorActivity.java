@@ -516,14 +516,12 @@ public class ArduinoCommunicatorActivity extends Activity implements
         else if (managerWater.isDisplayingDialog()) managerWater.updateDialog();
         else if (dlgConsoleTM != null)
             dlgConsoleTM.refresh();
-        else {
-            String formattedDate = df.format(new Date());
-            textTime.setText(formattedDate);
-            gaugeBattery.invalidate();
-            gaugeWater.invalidate();
-            relayModuleUpdated();
-        }
 
+        String formattedDate = df.format(new Date());
+        textTime.setText(formattedDate);
+        gaugeBattery.invalidate();
+        gaugeWater.invalidate();
+        relayModuleUpdated();
     }
 
     @Override
