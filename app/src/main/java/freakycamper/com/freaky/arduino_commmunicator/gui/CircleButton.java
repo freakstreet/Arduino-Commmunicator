@@ -19,7 +19,7 @@ public class CircleButton extends ImageView {
     private static final int PRESSED_COLOR_LIGHTUP = 255 / 25;
     private static final int PRESSED_RING_ALPHA = 75;
     private static final int DEFAULT_PRESSED_RING_WIDTH_DIP = 4;
-    private static final int ANIMATION_TIME_ID = android.R.integer.config_shortAnimTime;
+    private static final int ANIMATION_TIME_ID = android.R.integer.config_longAnimTime;
 
     private int centerY;
     private int centerX;
