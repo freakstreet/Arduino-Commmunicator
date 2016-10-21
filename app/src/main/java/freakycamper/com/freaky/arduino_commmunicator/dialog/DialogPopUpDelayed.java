@@ -68,6 +68,14 @@ public class DialogPopUpDelayed extends Dialog {
         }
     }
 
+    public void blockAutoCloseTimer(){
+        countDownTimer.cancel();
+    }
+
+    public void releaseAutoCloseTimer(){
+        countDownTimer.start();
+    }
+
     public void setMonitoredComponent(View view){
         if (touchListener == null) {
             touchListener = new View.OnTouchListener() {
