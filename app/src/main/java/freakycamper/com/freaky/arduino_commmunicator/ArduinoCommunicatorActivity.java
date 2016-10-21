@@ -71,7 +71,8 @@ public class ArduinoCommunicatorActivity extends Activity implements
         AcceleroMonitoring.OnShakeDetected
 {
 
-    private final static String DEVICE_NAME = "Android SDK built for x86";
+    private final static String DEVICE_NAME_1 = "Android SDK built for x86";
+    private final static String DEVICE_NAME_2 = "Android SDK built for x86_64";
 
     private static final int ARDUINO_USB_VENDOR_ID = 0x2341;
     private static final int ARDUINO_UNO_USB_PRODUCT_ID = 0x01;
@@ -194,7 +195,7 @@ public class ArduinoCommunicatorActivity extends Activity implements
             }
         });
 
-        if (Build.MODEL.compareTo(DEVICE_NAME) == 0)
+        if ((Build.MODEL.compareTo(DEVICE_NAME_1) == 0) || (Build.MODEL.compareTo(DEVICE_NAME_2) == 0))
         {
             use_simulator = true;
             Toast.makeText(getBaseContext(), getString(R.string.simulation_mode), Toast.LENGTH_LONG).show();
