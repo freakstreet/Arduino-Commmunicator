@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ColdManager;
 import freakycamper.com.freaky.arduino_commmunicator.ComponentManagers.ElectricalManager;
 import freakycamper.com.freaky.arduino_commmunicator.R;
 import freakycamper.com.freaky.arduino_commmunicator.campdatas.ElectricalItem;
@@ -21,10 +20,10 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
 
 
     public DialogElectrical(Context context, final ElectricalManager manager) {
-        super(context, context.getText(R.string.dialog_elec).toString(), R.layout.layout_electrical, android.R.style.Theme_DeviceDefault);
+        super(context, context.getText(R.string.dialog_elec).toString(), R.layout.layout_electrical, android.R.style.Theme_Holo_Dialog_NoActionBar);
 
         String lbl;
-        setDimensions(500, 260);
+        setDimensions(500, 240);
         elec = manager;
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
