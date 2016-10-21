@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/disabled_gray">
+    android:background="@drawable/custom_border">
 
     <LinearLayout
         android:orientation="horizontal"
