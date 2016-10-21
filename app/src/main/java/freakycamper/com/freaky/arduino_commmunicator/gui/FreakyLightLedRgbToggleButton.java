@@ -27,11 +27,17 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
     LightItem item = null;
 
     OnLightItemChangeAsked listener = null;
+    OnDialogACtion dlgListener = null;
+
+    public interface OnDialogACtion{
+        void onOpenedDialog();
+        void onDialogClosed();
+    }
 
     public interface OnLightItemChangeAsked{
-        public void updateLightRGB(int rgbColor, int lightId);
-        public void updateLightDIMM(int dimmVAl, int lightId);
-        public void updateLightSwitch(boolean isOn, int lightId);
+        void updateLightRGB(int rgbColor, int lightId);
+        void updateLightDIMM(int dimmVAl, int lightId);
+        void updateLightSwitch(boolean isOn, int lightId);
     }
 
     public FreakyLightLedRgbToggleButton(Context context, AttributeSet attrs, int defStyle) {
@@ -75,10 +81,16 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
     public void setListener(OnLightItemChangeAsked listener)
     {
         this.listener = listener;
-
     }
 
+    public void setDialogListener(OnDialogACtion actListener)
+    {
+        this.dlgListener = actListener;
+    }
+
+
     private void pickDimmValue(){
+        fireOnDialogOpened();
         final LightnessPickedDialogBuilder dlg = LightnessPickedDialogBuilder
                 .with(getContext(), android.support.v7.appcompat.R.style.Base_Theme_AppCompat_Dialog)
                 .setTitle("Select light desired dimm value");
@@ -87,15 +99,22 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
             @Override
             public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
                 listener.updateLightDIMM(Color.red(selectedColor), item.getId());
+                fireOnDialogClosed();
             }
         });
-        dlg.setNegativeButton("Cancel", null);
+        dlg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                fireOnDialogClosed();
+            }
+        });
         dlg.initialDimmValue(item.getDimmValue());
         dlg.build().show();
     }
 
     private void pickRGBColor(){
 
+        fireOnDialogOpened();
         final ColorPickerDialogBuilder dlg = ColorPickerDialogBuilder
                 .with(getContext(), android.support.v7.appcompat.R.style.Base_Theme_AppCompat_Dialog)
                 .setTitle("Select light desired color")
@@ -109,6 +128,7 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
             public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
                 listener.updateLightRGB(selectedColor, item.getId());
                 setBackgroundColor(selectedColor);
+                fireOnDialogClosed();
             }
         });
 
@@ -117,6 +137,7 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
                 public void onClick(DialogInterface dialog, int which) {
                     setBackgroundColor(Color.rgb(item.getRedValue(), item.getGreenValue(), item.getBlueValue()));
                     setTextColor(Color.rgb(255-Color.red(item.getRedValue()), 255-Color.green(item.getGreenValue()), 255-Color.blue(item.getBlueValue())));
+                    fireOnDialogClosed();
                 }
         });
 
@@ -137,6 +158,16 @@ public class FreakyLightLedRgbToggleButton extends ToggleButton implements Dialo
         }
         dlg.initialColor(c);
         dlg.build().show();
+    }
+
+    private void fireOnDialogOpened(){
+        if (dlgListener != null)
+            dlgListener.onOpenedDialog();
+    }
+
+    private void fireOnDialogClosed(){
+        if (dlgListener != null)
+            dlgListener.onDialogClosed();
     }
 
     @Override
