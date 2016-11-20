@@ -10,7 +10,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="96dp">
+        android:layout_height="72dp">
 
         <TextView
             android:text="Water function"
@@ -18,7 +18,7 @@
             android:id="@+id/text_relay_water"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
-            android:textSize="30sp"
+            android:textSize="26sp"
             android:layout_width="230dp" />
 
         <freakycamper.com.freaky.arduino_commmunicator.gui.CircleButton
@@ -28,8 +28,8 @@
             android:src="@drawable/ic_action_tick"
             android:clickable="true"
             android:id="@+id/bt_relay_water"
-            android:layout_width="96dp"
-            android:layout_height="96dp" />
+            android:layout_width="72dp"
+            android:layout_height="72dp" />
 
         <TextView
             android:text="Light function"
@@ -37,42 +37,42 @@
             android:id="@+id/text_relay_light"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
-            android:textSize="30sp"
+            android:textSize="26sp"
             android:layout_width="230dp" />
 
         <freakycamper.com.freaky.arduino_commmunicator.gui.CircleButton
             android:text="New Button"
-            android:layout_height="96dp"
+            android:layout_height="72dp"
             app:cb_color="@android:color/holo_red_light"
             app:cb_pressedRingWidth="8dip"
             android:src="@drawable/ic_action_tick"
             android:clickable="true"
-            android:layout_width="96dp"
+            android:layout_width="72dp"
             android:id="@+id/bt_relay_light" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="96dp">
+        android:layout_height="72dp">
 
         <TextView
             android:text="Cold function"
             android:layout_height="match_parent"
             android:id="@+id/text_relay_cold"
-            android:textSize="30sp"
+            android:textSize="26sp"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
             android:layout_width="230dp" />
 
         <freakycamper.com.freaky.arduino_commmunicator.gui.CircleButton
             android:text="New Button"
-            android:layout_height="96dp"
+            android:layout_height="72dp"
             app:cb_color="@android:color/holo_red_light"
             app:cb_pressedRingWidth="8dip"
             android:src="@drawable/ic_action_tick"
             android:clickable="true"
-            android:layout_width="96dp"
+            android:layout_width="72dp"
             android:id="@+id/bt_relay_cold"/>
 
         <TextView
@@ -81,24 +81,24 @@
             android:id="@+id/text_relay_heater"
             android:gravity="center"
             android:fontFamily="sans-serif-thin"
-            android:textSize="30sp"
+            android:textSize="26sp"
             android:layout_width="230dp" />
 
         <freakycamper.com.freaky.arduino_commmunicator.gui.CircleButton
             android:text="New Button"
-            android:layout_height="96dp"
+            android:layout_height="72dp"
             app:cb_color="@android:color/holo_red_light"
             app:cb_pressedRingWidth="8dip"
             android:src="@drawable/ic_action_tick"
             android:clickable="true"
-            android:layout_width="96dp"
+            android:layout_width="72dp"
             android:id="@+id/bt_relay_heater"/>
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="96dp">
+        android:layout_height="72dp">
 
         <TextView
             android:text="Auxiliary function"
@@ -106,17 +106,17 @@
             android:id="@+id/text_relay_aux"
             android:fontFamily="sans-serif-thin"
             android:gravity="center"
-            android:textSize="30sp"
+            android:textSize="26sp"
             android:layout_width="230dp" />
 
         <freakycamper.com.freaky.arduino_commmunicator.gui.CircleButton
             android:text="New Button"
-            android:layout_height="96dp"
+            android:layout_height="72dp"
             app:cb_color="@android:color/holo_red_light"
             app:cb_pressedRingWidth="8dip"
             android:src="@drawable/ic_action_tick"
             android:clickable="true"
-            android:layout_width="96dp"
+            android:layout_width="72dp"
             android:id="@+id/bt_relay_aux"/>
 
         <TextView
@@ -125,17 +125,17 @@
             android:gravity="center"
             android:id="@+id/text_relay_spare"
             android:fontFamily="sans-serif-thin"
-            android:textSize="30sp"
+            android:textSize="26sp"
             android:layout_width="230dp" />
 
         <freakycamper.com.freaky.arduino_commmunicator.gui.CircleButton
             android:text="New Button"
-            android:layout_height="96dp"
+            android:layout_height="72dp"
             app:cb_color="@android:color/darker_gray"
             app:cb_pressedRingWidth="8dip"
             android:src="@drawable/ic_action_tick"
             android:clickable="true"
-            android:layout_width="96dp"
+            android:layout_width="72dp"
             android:id="@+id/bt_relay_spare"
 />
     </LinearLayout>

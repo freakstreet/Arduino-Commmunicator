@@ -23,7 +23,7 @@ public class DialogElectrical extends DialogPopUpDelayed implements ElectricalMa
         super(context, context.getText(R.string.dialog_elec).toString(), R.layout.layout_electrical, android.R.style.Theme_Holo_Dialog_NoActionBar);
 
         String lbl;
-        setDimensions(500, 240);
+        setDimensions(490, 175);
         elec = manager;
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
