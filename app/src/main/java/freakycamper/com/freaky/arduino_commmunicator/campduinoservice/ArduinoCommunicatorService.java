@@ -252,7 +252,7 @@ public class ArduinoCommunicatorService extends Service {
     private void startReceiverThread() {
         new Thread("USB_receiver") {
             public void run() {
-                byte[] inBuffer = new byte[CampDuinoProtocol.RX_BUFFER_SIZE/2];
+                byte[] inBuffer = new byte[CampDuinoProtocol.RX_BUFFER_SIZE];
                 while(mUsbDevice != null ) {
                     if (DEBUG) Log.d(TAG, "calling bulkTransfer() in");
                     final int len = mUsbConnection.bulkTransfer(mInUsbEndpoint, inBuffer, inBuffer.length, 0);
@@ -312,7 +312,7 @@ public class ArduinoCommunicatorService extends Service {
 
         while (len > 0 && footerCount < CampDuinoProtocol.FRAME_FOOTER.length){
             if (count >= rxBuffer.getDataCount())
-                return;
+                return;     // the x frame footers have not been found until end of buffer
             char c = rxBuffer.charAt(count);
             count ++;
 
